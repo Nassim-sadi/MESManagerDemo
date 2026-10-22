@@ -14,6 +14,7 @@ layer can be swapped for the API without touching the pages.
 npm install
 npm run dev          # http://localhost:5173
 npm run type-check   # vue-tsc
+npm run check:icons  # validate every PrimeIcons class against the package
 npm run build        # production bundle
 npm run preview      # serve the production bundle
 ```
@@ -22,8 +23,8 @@ npm run preview      # serve the production bundle
 
 The login screen is a **workstation profile picker**: the people who signed in on this
 machine are listed as tiles, plus three seeded demo accounts so the screen is never
-empty. Clicking a tile asks for the password of that profile; "Use another account"
-falls back to a manual user name and password form.
+empty. Clicking a tile asks for the password of that profile; "Sign in manually" falls
+back to a user name, role and password form.
 
 Only the user name, the role and the last sign in are stored in `localStorage`
 (`mes.profiles`) — never a password.
@@ -65,7 +66,7 @@ src/
 │   ├── http.ts              axios instance (base URL, bearer token, 401 handling)
 │   └── mock/                demo data generator with simulated latency
 ├── stores/                  auth, app shell and alarms (global state only)
-├── composables/             useDataTable (server side paging/sorting state)
+├── composables/             useDataTable (paging/sorting state), useNavigation (nav tree)
 ├── types/                   shared domain entities, api and permission types
 └── utils/                   formatting and status tone helpers
 ```
@@ -151,16 +152,16 @@ export default routes
 ```
 
 3. Nothing else. `router/feature-routes.ts` picks the file up at build time via
-   `import.meta.glob`, the sidebar is generated from the same metadata and the guard
-   protects the route automatically.
+   `import.meta.glob`, the top bar menu is generated from the same metadata and the
+   guard protects the route automatically.
 
 ### Route metadata
 
 | Key              | Purpose                                                        |
 | ---------------- | -------------------------------------------------------------- |
-| `title`          | label in the sidebar, breadcrumb and browser title              |
+| `title`          | label in the navigation, breadcrumb and browser title          |
 | `icon`           | PrimeIcons class                                                |
-| `order`          | position in the sidebar                                         |
+| `order`          | position in the navigation                                      |
 | `showInMenu`     | `false` keeps detail pages out of the navigation                |
 | `requiresAuth`   | defaults to `true`; public screens opt out explicitly          |
 | `permissions`    | permission codes required to open the route (UX level)          |
