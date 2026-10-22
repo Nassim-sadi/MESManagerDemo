@@ -1,0 +1,175 @@
+@import './variables.css';
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: var(--mes-font-sans);
+  font-size: var(--mes-fs-sm);
+  color: var(--mes-text);
+  background: var(--mes-canvas);
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: var(--mes-accent);
+  text-decoration: none;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  margin: 0;
+  font-weight: 600;
+  color: var(--mes-text-strong);
+}
+
+/* --- Utility helpers --------------------------------------------------- */
+
+.mes-mono {
+  font-family: var(--mes-font-mono);
+  font-size: 12.5px;
+  letter-spacing: -0.01em;
+}
+
+.mes-muted {
+  color: var(--mes-text-muted);
+}
+
+.mes-faint {
+  color: var(--mes-text-faint);
+}
+
+.mes-eyebrow {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--mes-text-muted);
+}
+
+.mes-card {
+  background: var(--mes-surface);
+  border: 1px solid var(--mes-border);
+  border-radius: var(--mes-radius);
+  box-shadow: var(--mes-shadow-card);
+}
+
+.mes-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.6rem 0.9rem;
+  border-bottom: 1px solid var(--mes-border);
+  background: var(--mes-surface-header);
+  border-radius: var(--mes-radius) var(--mes-radius) 0 0;
+}
+
+.mes-card__title {
+  font-size: var(--mes-fs-lg);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--mes-text-strong);
+}
+
+.mes-card__body {
+  padding: 0.9rem;
+}
+
+.mes-grid {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.mes-toolbar {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.mes-table-wrap {
+  overflow: hidden;
+  background: var(--mes-surface);
+  border: 1px solid var(--mes-border);
+  border-radius: var(--mes-radius);
+  box-shadow: var(--mes-shadow-card);
+}
+
+/* --- Status tones ------------------------------------------------------- */
+
+.mes-tone--ok {
+  --mes-tone-fg: var(--mes-ok);
+  --mes-tone-bg: var(--mes-ok-bg);
+  --mes-tone-border: var(--mes-ok-border);
+}
+
+.mes-tone--warn {
+  --mes-tone-fg: var(--mes-warn);
+  --mes-tone-bg: var(--mes-warn-bg);
+  --mes-tone-border: var(--mes-warn-border);
+}
+
+.mes-tone--alarm {
+  --mes-tone-fg: var(--mes-alarm);
+  --mes-tone-bg: var(--mes-alarm-bg);
+  --mes-tone-border: var(--mes-alarm-border);
+}
+
+.mes-tone--idle {
+  --mes-tone-fg: var(--mes-idle);
+  --mes-tone-bg: var(--mes-idle-bg);
+  --mes-tone-border: var(--mes-idle-border);
+}
+
+.mes-tone--info {
+  --mes-tone-fg: var(--mes-accent);
+  --mes-tone-bg: var(--mes-accent-soft);
+  --mes-tone-border: var(--mes-accent-border);
+}
+
+.mes-tone {
+  color: var(--mes-tone-fg);
+  background: var(--mes-tone-bg);
+  border: 1px solid var(--mes-tone-border);
+}
+
+/* --- Scrollbars -------------------------------------------------------- */
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--mes-border-strong) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: var(--mes-border-strong);
+  border: 3px solid transparent;
+  background-clip: content-box;
+  border-radius: 999px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* --- Focus visibility -------------------------------------------------- */
+
+:focus-visible {
+  outline: 2px solid var(--mes-accent);
+  outline-offset: 1px;
+}

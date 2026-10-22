@@ -1,0 +1,230 @@
+<script setup lang="ts">
+import { ref } from 'vue'
+import Password from 'primevue/password'
+import InputText from 'primevue/inputtext'
+import Select from 'primevue/select'
+import Button from 'primevue/button'
+import Message from 'primevue/message'
+import type { LoginRole } from '../types'
+
+const props = defineProps<{
+  name: string
+  role: string
+  shift: string
+  error?: string | null
+  loading?: boolean
+  manual?: boolean
+  username?: string
+  manualRole?: LoginRole
+}>()
+
+const emit = defineEmits<{
+  submit: [password: string]
+  back: []
+  'update:username': [value: string]
+  'update:manualRole': [value: LoginRole]
+}>()
+
+const password = ref('')
+
+const roles: { label: string; value: LoginRole }[] = [
+  { label: 'Operator', value: 'operator' },
+  { label: 'Supervisor', value: 'supervisor' },
+  { label: 'Administrator', value: 'admin' },
+]
+
+function onSubmit(): void {
+  if (!password.value) return
+  emit('submit', password.value)
+}
+
+function initials(name: string): string {
+  return name
+    .split(' ')
+    .map((part) => part.charAt(0))
+    .join('')
+    .slice(0, 2)
+    .toUpperCase()
+}
+</script>
+
+<template>
+  <form class="step" @submit.prevent="onSubmit">
+    <button type="button" class="step__back" @click="emit('back')">
+      <i class="pi pi-arrow-left" />
+      <span>{{ props.manual ? 'Back to profiles' : 'Choose another profile' }}</span>
+    </button>
+
+    <template v-if="props.manual">
+      <div class="step__row">
+        <label class="step__field">
+          <span class="step__label">User name</span>
+          <InputText
+            :model-value="props.username"
+            autocomplete="username"
+            placeholder="e.g. j.kowalski"
+            fluid
+            @update:model-value="emit('update:username', $event ?? '')"
+          />
+        </label>
+
+        <label class="step__field">
+          <span class="step__label">Role</span>
+          <Select
+            :model-value="props.manualRole"
+            :options="roles"
+            option-label="label"
+            option-value="value"
+            fluid
+            @update:model-value="emit('update:manualRole', $event as LoginRole)"
+          />
+        </label>
+      </div>
+    </template>
+
+    <div v-else class="step__identity">
+      <span class="step__avatar" :data-role="role">{{ initials(name) }}</span>
+      <div>
+        <p class="step__name">{{ name }}</p>
+        <p class="step__meta">{{ role }} · {{ shift }}</p>
+      </div>
+    </div>
+
+    <label class="step__field">
+      <span class="step__label">Password</span>
+      <Password
+        v-model="password"
+        :feedback="false"
+        toggle-mask
+        autocomplete="current-password"
+        fluid
+        input-class="w-full"
+        placeholder="Enter password"
+      />
+    </label>
+
+    <Message v-if="error" severity="error" :closable="false" class="step__error">
+      {{ error }}
+    </Message>
+
+    <Button
+      type="submit"
+      label="Sign in"
+      icon="pi pi-sign-in"
+      :loading="loading"
+      :disabled="!password || (props.manual && !props.username)"
+      fluid
+    />
+
+    <p class="step__hint">Demo environment — any password is accepted.</p>
+  </form>
+</template>
+
+<style scoped>
+.step {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.step__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  align-self: flex-start;
+  padding: 0.15rem 0;
+  background: none;
+  border: 0;
+  color: var(--mes-text-muted);
+  font-size: var(--mes-fs-sm);
+  cursor: pointer;
+}
+
+.step__back:hover {
+  color: var(--mes-accent);
+}
+
+.step__row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.6rem;
+}
+
+.step__identity {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.7rem 0.75rem;
+  background: var(--mes-surface-sunken);
+  border: 1px solid var(--mes-border);
+  border-radius: var(--mes-radius);
+}
+
+.step__avatar {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: var(--mes-accent-soft);
+  color: var(--mes-accent);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.step__avatar[data-role='supervisor'] {
+  background: #eef4ea;
+  color: #4c7a3f;
+}
+
+.step__avatar[data-role='admin'] {
+  background: #f3eef7;
+  color: #6b4b86;
+}
+
+.step__name {
+  margin: 0;
+  font-size: var(--mes-fs-lg);
+  font-weight: 600;
+  color: var(--mes-text-strong);
+}
+
+.step__meta {
+  margin: 0.1rem 0 0;
+  font-size: 11px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--mes-text-muted);
+}
+
+.step__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.step__label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--mes-text-muted);
+}
+
+.step__error {
+  margin: 0;
+}
+
+.step__hint {
+  margin: 0;
+  font-size: 11px;
+  color: var(--mes-text-faint);
+}
+
+@media (max-width: 480px) {
+  .step__row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+</style>

@@ -1,0 +1,166 @@
+/* PrimeVue overrides.
+   The palette and density live in the theme preset (src/app/theme.ts).
+   This file only handles structural tweaks PrimeVue does not expose as
+   design tokens: typography scale, separators and row states. */
+
+/* Typography scale ------------------------------------------------------ */
+
+.p-button {
+  font-size: 13px;
+}
+
+.p-inputtext,
+.p-textarea,
+.p-select-label,
+.p-multiselect-label,
+.p-datepicker-input,
+.p-inputnumber-input {
+  font-size: 13px;
+}
+
+.p-tab {
+  font-size: 13px;
+}
+
+.p-paginator,
+.p-paginator .p-paginator-page,
+.p-paginator .p-paginator-first,
+.p-paginator .p-paginator-prev,
+.p-paginator .p-paginator-next,
+.p-paginator .p-paginator-last,
+.p-paginator .p-paginator-current {
+  font-size: 13px;
+}
+
+.p-dialog .p-dialog-title {
+  font-size: 15px;
+}
+
+.p-menu .p-menu-item-label,
+.p-menu .p-menu-item-content {
+  font-size: 13px;
+}
+
+.p-select-overlay,
+.p-datepicker-panel,
+.p-multiselect-overlay {
+  font-size: 13px;
+}
+
+.p-toast-message {
+  font-size: 13px;
+}
+
+.p-confirmdialog .p-confirmdialog-message {
+  font-size: 13px;
+}
+
+/* Data table ------------------------------------------------------------ */
+
+.p-datatable {
+  font-size: 13px;
+}
+
+.p-datatable .p-datatable-thead > tr > th {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--mes-text-muted);
+  background: var(--mes-surface-header);
+  border-color: var(--mes-border);
+  white-space: nowrap;
+}
+
+.p-datatable .p-datatable-tbody > tr > td {
+  border-color: #e6ebf0;
+}
+
+.p-datatable .p-datatable-tbody > tr {
+  transition: background var(--mes-transition);
+}
+
+.p-datatable .p-datatable-tbody > tr.p-datatable-row-selected {
+  background: var(--mes-accent-soft);
+  color: var(--mes-text);
+}
+
+.p-datatable .p-datatable-tbody > tr.p-datatable-row-clickable {
+  cursor: pointer;
+}
+
+/* Identifiers and timestamps never wrap inside a table cell. */
+.p-datatable .p-datatable-tbody > tr > td .mes-mono {
+  white-space: nowrap;
+}
+
+.p-datatable .p-datatable-header {
+  background: transparent;
+  border: 0;
+  padding: 0;
+}
+
+.p-datatable .p-paginator {
+  border: 0;
+  border-top: 1px solid var(--mes-border);
+  border-radius: 0;
+}
+
+.p-datatable .p-paginator .p-paginator-page,
+.p-datatable .p-paginator .p-paginator-first,
+.p-datatable .p-paginator .p-paginator-prev,
+.p-datatable .p-paginator .p-paginator-next,
+.p-datatable .p-paginator .p-paginator-last {
+  min-width: 1.9rem;
+  height: 1.9rem;
+  font-size: 13px;
+}
+
+/* Dialog ---------------------------------------------------------------- */
+
+.p-dialog {
+  box-shadow: var(--mes-shadow-popup);
+}
+
+.p-dialog .p-dialog-header {
+  padding: 0.9rem 1rem;
+  border-bottom: 1px solid var(--mes-border);
+}
+
+.p-dialog .p-dialog-content {
+  padding: 1rem;
+}
+
+/* Form fields ----------------------------------------------------------- */
+
+.p-inputgroup > .p-inputgroup-addon {
+  background: var(--mes-surface-header);
+  color: var(--mes-text-muted);
+  border-color: var(--mes-border);
+}
+
+/* Tabs ------------------------------------------------------------------ */
+
+.p-tabs .p-tablist {
+  background: var(--mes-surface-header);
+}
+
+.p-tabs .p-tab {
+  padding: 0.5rem 0.9rem;
+}
+
+/* Tags ------------------------------------------------------------------ */
+
+.p-tag {
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+/* Checkbox / radio ------------------------------------------------------ */
+
+.p-checkbox .p-checkbox-box,
+.p-radiobutton .p-radiobutton-box {
+  border-radius: 3px;
+}

@@ -1,0 +1,75 @@
+/* MES Manager design tokens.
+   Industrial enterprise palette: neutral surfaces, one blue accent,
+   status colours reserved for operational meaning only. */
+
+:root {
+  /* Canvas + surfaces */
+  --mes-canvas: #eef2f5;
+  --mes-surface: #ffffff;
+  --mes-surface-sunken: #f7f9fa;
+  --mes-surface-header: #eef2f5;
+  --mes-surface-hover: #f4f7f9;
+
+  /* Navigation (dark top bar) */
+  --mes-nav: #172433;
+  --mes-nav-sub: #1c2b3c;
+  --mes-nav-hover: #223349;
+  --mes-nav-border: #24374d;
+  --mes-nav-text: #c3ced9;
+  --mes-nav-text-muted: #7d8fa1;
+
+  /* Text */
+  --mes-text: #182635;
+  --mes-text-strong: #101d2a;
+  --mes-text-muted: #64748b;
+  --mes-text-faint: #94a3b1;
+
+  /* Lines */
+  --mes-border: #d7dee5;
+  --mes-border-strong: #c3ced8;
+
+  /* Accent */
+  --mes-accent: #2563a6;
+  --mes-accent-hover: #1f4f84;
+  --mes-accent-soft: #eaf1f8;
+  --mes-accent-border: #c5d8ec;
+
+  /* Operational status */
+  --mes-ok: #238457;
+  --mes-ok-bg: #eaf6f0;
+  --mes-ok-border: #bfe3d0;
+  --mes-warn: #c28122;
+  --mes-warn-bg: #fdf5e8;
+  --mes-warn-border: #f0dcb4;
+  --mes-alarm: #c43d3d;
+  --mes-alarm-bg: #fbeeec;
+  --mes-alarm-border: #f0c9c6;
+  --mes-idle: #52606d;
+  --mes-idle-bg: #f1f4f7;
+  --mes-idle-border: #d7dee5;
+
+  /* Layout metrics */
+  --mes-header-height: 56px;
+  --mes-header-sub-height: 38px;
+  --mes-content-gutter: 22px;
+
+  /* Typography */
+  --mes-font-sans:
+    'Inter', 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif;
+  --mes-font-mono:
+    'Cascadia Mono', 'JetBrains Mono', 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
+
+  --mes-fs-xs: 12px;
+  --mes-fs-sm: 13px;
+  --mes-fs-md: 14px;
+  --mes-fs-lg: 15px;
+  --mes-fs-xl: 23px;
+
+  /* Radii + shadows (small radii, shadows used sparingly) */
+  --mes-radius: 6px;
+  --mes-radius-sm: 4px;
+  --mes-shadow-card: 0 1px 2px rgb(16 29 42 / 6%);
+  --mes-shadow-popup: 0 12px 28px -14px rgb(16 29 42 / 40%);
+
+  --mes-transition: 120ms ease;
+}
