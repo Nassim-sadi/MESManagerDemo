@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import Button from 'primevue/button'
@@ -14,7 +14,10 @@ import {
 } from '../services/lineassignments.service'
 import type { LineAssignment, LineRecord } from '../types'
 import ImportAssignmentsDialog from '../components/ImportAssignmentsDialog.vue'
+import PrintDocument from '../components/PrintDocument.vue'
 import { formatNumber } from '@/utils/format'
+
+type PrintMode = 'lines' | 'assignments'
 
 const lines = ref<LineRecord[]>([])
 const assignments = ref<LineAssignment[]>([])
@@ -26,13 +29,21 @@ const importVisible = ref(false)
 const linesTable = ref<InstanceType<typeof DataTable> | null>(null)
 const assignmentsTable = ref<InstanceType<typeof DataTable> | null>(null)
 
+const printMode = ref<PrintMode | null>(null)
+
 const lineAssignments = computed(() =>
   selectedLine.value ? assignmentsOfLine(assignments.value, selectedLine.value.id) : [],
+)
+
+const printAssignments = computed(() =>
+  printMode.value === 'assignments' ? lineAssignments.value : [],
 )
 
 const statusTone = (row: LineRecord): StatusTone => LINE_TONES[row.status] ?? 'idle'
 
 onMounted(async () => {
+  window.addEventListener('afterprint', onAfterPrint)
+
   try {
     const [lineData, assignmentData] = await Promise.all([fetchLines(), fetchAssignments()])
     lines.value = lineData
@@ -45,6 +56,23 @@ onMounted(async () => {
     loading.value = false
   }
 })
+
+onBeforeUnmount(() => {
+  window.removeEventListener('afterprint', onAfterPrint)
+})
+
+/** Printing renders the hidden print document instead of the app shell. */
+async function print(mode: PrintMode): Promise<void> {
+  printMode.value = mode
+  document.body.dataset.print = mode
+  await nextTick()
+  window.print()
+}
+
+function onAfterPrint(): void {
+  printMode.value = null
+  delete document.body.dataset.print
+}
 
 async function onImported(): Promise<void> {
   try {
@@ -89,15 +117,26 @@ async function onImported(): Promise<void> {
         <div class="mes-card line-assignments__master">
           <div class="mes-card__header">
             <span class="mes-card__title">Production Lines</span>
-            <Button
-              label="Export CSV"
-              icon="pi pi-download"
-              severity="primary"
-              outlined
-              size="small"
-              :disabled="lines.length === 0"
-              @click="linesTable?.exportCSV()"
-            />
+            <div class="mes-card__actions">
+              <Button
+                label="Export CSV"
+                icon="pi pi-download"
+                severity="primary"
+                outlined
+                size="small"
+                :disabled="lines.length === 0"
+                @click="linesTable?.exportCSV()"
+              />
+              <Button
+                label="Print"
+                icon="pi pi-print"
+                severity="primary"
+                outlined
+                size="small"
+                :disabled="lines.length === 0"
+                @click="print('lines')"
+              />
+            </div>
           </div>
 
           <DataTable
@@ -138,15 +177,26 @@ async function onImported(): Promise<void> {
                 — {{ selectedLine.name }} ({{ selectedLine.id }})</span
               >
             </span>
-            <Button
-              label="Export CSV"
-              icon="pi pi-download"
-              severity="primary"
-              outlined
-              size="small"
-              :disabled="lineAssignments.length === 0"
-              @click="assignmentsTable?.exportCSV()"
-            />
+            <div class="mes-card__actions">
+              <Button
+                label="Export CSV"
+                icon="pi pi-download"
+                severity="primary"
+                outlined
+                size="small"
+                :disabled="lineAssignments.length === 0"
+                @click="assignmentsTable?.exportCSV()"
+              />
+              <Button
+                label="Print"
+                icon="pi pi-print"
+                severity="primary"
+                outlined
+                size="small"
+                :disabled="!selectedLine || lineAssignments.length === 0"
+                @click="print('assignments')"
+              />
+            </div>
           </div>
 
           <EmptyState
@@ -196,6 +246,14 @@ async function onImported(): Promise<void> {
       :existing="assignments"
       @imported="onImported"
     />
+
+    <PrintDocument
+      v-if="printMode"
+      :mode="printMode"
+      :lines="lines"
+      :assignments="printAssignments"
+      :selected-line="selectedLine"
+    />
   </div>
 </template>
 
@@ -228,5 +286,38 @@ async function onImported(): Promise<void> {
 
 .line-assignments__detail {
   overflow: hidden;
+}
+
+.mes-card__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+</style>
+
+<style>
+/* Print pass: show only the print document, never the app shell or
+   PrimeVue scroll containers. The document is a plain HTML table, so it
+   cannot be clipped on paper. */
+@media print {
+  body[data-print] #app * {
+    visibility: hidden !important;
+  }
+
+  body[data-print] #app .print-doc,
+  body[data-print] #app .print-doc * {
+    visibility: visible !important;
+  }
+
+  body[data-print] #app .print-doc {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+  }
+
+  @page {
+    margin: 14mm;
+  }
 }
 </style>
