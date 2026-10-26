@@ -1,7 +1,11 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref } from 'vue'
 import { RouterView } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import AppLogo from '@/components/brand/AppLogo.vue'
+import { intlLocale } from '@/plugins/i18n'
+
+const { t } = useI18n()
 
 const now = ref(new Date())
 let timer: number | undefined
@@ -17,7 +21,7 @@ onUnmounted(() => {
 })
 
 const time = () =>
-  new Intl.DateTimeFormat('en-GB', {
+  new Intl.DateTimeFormat(intlLocale(), {
     hour: '2-digit',
     minute: '2-digit',
     second: '2-digit',
@@ -25,7 +29,7 @@ const time = () =>
   }).format(now.value)
 
 const date = () =>
-  new Intl.DateTimeFormat('en-GB', {
+  new Intl.DateTimeFormat(intlLocale(), {
     weekday: 'short',
     day: '2-digit',
     month: 'short',
@@ -39,33 +43,31 @@ const date = () =>
       <div class="auth__brand">
         <span class="auth__logo"><AppLogo :size="22" /></span>
         <div>
-          <div class="auth__name">MES Manager</div>
-          <div class="auth__sub">Manufacturing Execution System</div>
+          <div class="auth__name">{{ t('app.name') }}</div>
+          <div class="auth__sub">{{ t('app.taglineFull') }}</div>
         </div>
       </div>
 
       <div class="auth__middle">
         <div class="auth__context">
           <div class="auth__context-row">
-            <span class="auth__context-label">Plant</span>
+            <span class="auth__context-label">{{ t('auth.aside.plant') }}</span>
             <span class="auth__context-value">Plant 04 — Bratislava</span>
           </div>
           <div class="auth__context-row">
-            <span class="auth__context-label">Shift</span>
+            <span class="auth__context-label">{{ t('auth.aside.shift') }}</span>
             <span class="auth__context-value">Shift A · 06:00 – 14:00</span>
           </div>
           <div class="auth__context-row">
-            <span class="auth__context-label">Terminal</span>
+            <span class="auth__context-label">{{ t('auth.aside.terminal') }}</span>
             <span class="auth__context-value">
               <i class="pi pi-circle-fill auth__dot" />
-              Shop floor station 3
+              {{ t('auth.aside.online') }}
             </span>
           </div>
         </div>
 
-        <p class="auth__note">
-          Demo environment — every record on this screen is sample production data.
-        </p>
+        <p class="auth__note">{{ t('auth.aside.note') }}</p>
       </div>
 
       <footer class="auth__clock">

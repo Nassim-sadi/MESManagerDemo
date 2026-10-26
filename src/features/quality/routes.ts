@@ -6,7 +6,7 @@ const routes: FeatureRoutes = [
     path: 'quality',
     name: 'quality',
     meta: {
-      title: 'Quality',
+      title: 'Quality', titleKey: 'quality',
       icon: 'pi pi-shield',
       order: 40,
       showInMenu: true,
@@ -18,7 +18,7 @@ const routes: FeatureRoutes = [
         name: 'quality-inspections',
         component: () => import('./pages/InspectionsPage.vue'),
         meta: {
-          title: 'Inspections',
+          title: 'Inspections', titleKey: 'inspections',
           icon: 'pi pi-verified',
           order: 1,
           showInMenu: true,
@@ -29,7 +29,7 @@ const routes: FeatureRoutes = [
         name: 'quality-defects',
         component: () => import('./pages/QualityPage.vue'),
         meta: {
-          title: 'Defects',
+          title: 'Defects', titleKey: 'defects',
           icon: 'pi pi-exclamation-circle',
           order: 2,
           showInMenu: true,

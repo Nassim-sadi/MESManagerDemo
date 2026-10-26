@@ -1,8 +1,11 @@
 import type { RouteRecordRaw } from 'vue-router'
 import type { AppRouteMeta } from './types'
+import { i18n } from '@/plugins/i18n'
 
 export interface NavItem {
   label: string
+  /** i18n key from `route.meta.titleKey` (falls back to the raw `title`). */
+  titleKey: string
   icon?: string
   /** Absolute router path, e.g. '/production/lines'. */
   to: string
@@ -35,6 +38,10 @@ function joinPath(base: string, path: string): string {
  * - a child with `meta.group` is detached from its parent and nested under
  *   the group with that route name
  */
+function navLabel(meta: AppRouteMeta): string {
+  return meta.titleKey ? i18n.global.t(meta.titleKey) : (meta.title ?? '')
+}
+
 function collect(record: RouteRecordRaw, basePath: string, out: NavEntry[]): void {
   const meta = (record.meta ?? {}) as AppRouteMeta
   const fullPath = joinPath(basePath, record.path)
@@ -56,6 +63,7 @@ function collect(record: RouteRecordRaw, basePath: string, out: NavEntry[]): voi
       name: typeof record.name === 'string' ? record.name : undefined,
       item: {
         label: meta.title,
+        titleKey: meta.titleKey ?? '',
         icon: meta.icon,
         to: fullPath,
         order: meta.order ?? 999,
@@ -74,6 +82,7 @@ function collect(record: RouteRecordRaw, basePath: string, out: NavEntry[]): voi
     group: meta.group,
     item: {
       label: meta.title,
+      titleKey: meta.titleKey ?? '',
       icon: meta.icon,
       to: fullPath,
       order: meta.order ?? 999,

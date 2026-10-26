@@ -12,10 +12,15 @@ import './assets/styles/primevue-overrides.css'
 import App from './App.vue'
 import router from './router'
 import theme from './app/theme'
+import { i18n, persistedLocaleInitial } from './plugins/i18n'
 
-// Apply the persisted theme before mount so switching to dark never flashes.
+// Apply the persisted theme and language before mount so neither flashes.
 if (localStorage.getItem('mes.theme') === 'dark') {
   document.documentElement.classList.add('mes-dark')
+}
+if (persistedLocaleInitial() === 'ar') {
+  document.documentElement.lang = 'ar'
+  document.documentElement.dir = 'rtl'
 }
 
 const app = createApp(App)
@@ -33,6 +38,7 @@ app.use(PrimeVue, {
 })
 app.use(ToastService)
 app.use(ConfirmationService)
+app.use(i18n)
 app.directive('tooltip', Tooltip)
 
 app.mount('#app')

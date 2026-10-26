@@ -1,5 +1,6 @@
 import type { Router } from 'vue-router'
 import { useAuthStore } from '@/stores/auth.store'
+import { i18n } from '@/plugins/i18n'
 
 /**
  * Demo guard. Swap `useAuthStore` for the real session handling once the
@@ -28,7 +29,8 @@ export function installGuards(router: Router): void {
   })
 
   router.afterEach((to) => {
-    const title = to.meta.title
-    document.title = title ? `${title} · MES Manager` : 'MES Manager'
+    const meta = to.meta as { title: string; titleKey?: string }
+    const label = meta.titleKey ? i18n.global.t(meta.titleKey) : (meta.title ?? '')
+    document.title = label ? `${label} · MES Manager` : 'MES Manager'
   })
 }

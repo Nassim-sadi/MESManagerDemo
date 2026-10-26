@@ -1,0 +1,119 @@
+{
+  "app": {
+    "name": "MES Manager",
+    "tagline": "التصنيع والإنتاج",
+    "taglineFull": "نظام تنفيذ التصنيع"
+  },
+  "common": {
+    "plant": "المصنع",
+    "shift": "الوردية",
+    "language": "اللغة",
+    "darkMode": "الوضع الداكن",
+    "actions": "الإجراءات"
+  },
+  "nav": {
+    "dashboard": "الرئيسية",
+    "workOrders": "أوامر التشغيل",
+    "workOrderDetail": "تفاصيل أمر التشغيل",
+    "production": "الإنتاج",
+    "productionLines": "خطوط الإنتاج",
+    "lineDetail": "تفاصيل الخط",
+    "inventory": "المخزون",
+    "stockOverview": "نظرة عامة على المخزون",
+    "materialMovements": "حركة المواد",
+    "quality": "الجودة",
+    "inspections": "الفحوصات",
+    "defects": "العيوب",
+    "reports": "التقارير",
+    "traceability": "التتبع",
+    "serialSearch": "البحث برقم المسلسل",
+    "productHistory": "سجل المنتج",
+    "lineAssignments": "توزيع الخطوط",
+    "settings": "الإعدادات",
+    "signIn": "تسجيل الدخول",
+    "notFound": "الصفحة غير موجودة"
+  },
+  "topbar": {
+    "openAlarms": "فتح الإنذارات",
+    "toggleNavigation": "تبديل القائمة",
+    "switchToLight": "التبديل إلى الوضع الفاتح",
+    "switchToDark": "التبديل إلى الوضع الداكن",
+    "mainNavigation": "القائمة الرئيسية",
+    "mobileNavigation": "قائمة الجوال",
+    "home": "الصفحة الرئيسية",
+    "language": "اللغة"
+  },
+  "auth": {
+    "signIn": "تسجيل الدخول",
+    "title": "تسجيل الدخول",
+    "profilesSubtitle": "اختر ملف تعريف محطة العمل للمتابعة",
+    "passwordSubtitle": "أدخل كلمة المرور لملف تعريف محطة العمل هذا",
+    "profiles": {
+      "lastSeen": "آخر تسجيل دخول {time}",
+      "notUsedYet": "لم يُستخدم بعد",
+      "manualTitle": "تسجيل الدخول يدويًا",
+      "manualRoles": "حساب آخر",
+      "manualHint": "اسم المستخدم وكلمة المرور"
+    },
+    "password": {
+      "backToProfiles": "العودة إلى الملفات الشخصية",
+      "chooseAnotherProfile": "اختيار ملف تعريف آخر",
+      "userName": "اسم المستخدم",
+      "usernamePlaceholder": "مثال: j.kowalski",
+      "role": "الدور",
+      "password": "كلمة المرور",
+      "passwordPlaceholder": "أدخل كلمة المرور",
+      "signIn": "تسجيل الدخول",
+      "hint": "بيئة تجريبية — يُقبل أي كلمة مرور."
+    },
+    "roles": {
+      "operator": "مُشغّل",
+      "supervisor": "مشرف",
+      "admin": "مدير النظام"
+    },
+    "menu": {
+      "member": "مسجّل الدخول باسم",
+      "roleValue": "الدور: {role}",
+      "account": "الحساب",
+      "session": "الجلسة",
+      "profile": "الملف الشخصي",
+      "preferences": "التفضيلات",
+      "lock": "قفل المحطة",
+      "logout": "تسجيل الخروج"
+    },
+    "aside": {
+      "plant": "المصنع",
+      "shift": "الوردية",
+      "terminal": "المحطة",
+      "online": "محطة الورشة 3",
+      "note": "بيئة تجريبية — جميع السجلات في هذه الشاشة هي بيانات إنتاج تجريبية."
+    },
+    "failed": "فشل تسجيل الدخول."
+  },
+  "settings": {
+    "title": "الإعدادات",
+    "subtitle": "الإعدادات الافتراضية للمصنع والحدود وأدوار المستخدمين التجريبيين",
+    "plantDefaults": "الإعدادات الافتراضية للمصنع",
+    "timeZone": "المنطقة الزمنية",
+    "shiftPolicy": "نظام الورديات",
+    "darkTheme": "الوضع الداكن",
+    "oeeWarning": "حد تحذير OEE (%)",
+    "scrapAlarm": "حد إنذار الهالك (%)",
+    "refreshInterval": "فترة التحديث المباشر (ث)",
+    "save": "حفظ الإعدادات",
+    "savedSummary": "تم حفظ الإعدادات",
+    "savedMessage": "تم تخزين التكوين لهذه الجلسة التجريبية.",
+    "demoUsers": "المستخدمون التجريبيون",
+    "demoUsersSub": "الدور يحدد القائمة والإجراءات",
+    "demoUsersUser": "المستخدم",
+    "demoUsersRole": "الدور",
+    "permissions": "{count} صلاحيات"
+  },
+  "errors": {
+    "notFound": {
+      "title": "الصفحة غير موجودة",
+      "message": "الشاشة المطلوبة غير موجودة أو أن المسار غيّر.",
+      "back": "العودة إلى الرئيسية"
+    }
+  }
+}

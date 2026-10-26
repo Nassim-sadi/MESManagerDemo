@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { computed, watch, onMounted, onUnmounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import Menu from 'primevue/menu'
 import type { MenuItem } from 'primevue/menuitem'
 import Select from 'primevue/select'
@@ -12,13 +13,20 @@ import UserMenu from './UserMenu.vue'
 import { useAppStore } from '@/stores/app.store'
 import { useAlarmsStore } from '@/stores/alarms.store'
 import { useNavigation } from '@/composables/useNavigation'
+import { intlLocale, type AppLocale } from '@/plugins/i18n'
 import type { NavItem } from '@/router/navigation'
 
 const router = useRouter()
 const route = useRoute()
 const app = useAppStore()
 const alarmStore = useAlarmsStore()
+const { t } = useI18n()
 const { items } = useNavigation()
+
+const langOptions: { code: AppLocale; label: string }[] = [
+  { code: 'en', label: 'EN' },
+  { code: 'ar', label: 'العربية' },
+]
 
 const menu = ref<InstanceType<typeof Menu>>()
 const menuModel = ref<MenuItem[]>([])
@@ -52,7 +60,7 @@ onUnmounted(() => {
 })
 
 const clock = () =>
-  new Intl.DateTimeFormat('en-GB', {
+  new Intl.DateTimeFormat(intlLocale(), {
     hour: '2-digit',
     minute: '2-digit',
     second: '2-digit',
@@ -85,21 +93,21 @@ function openGroup(event: Event, item: NavItem): void {
         text
         severity="secondary"
         size="small"
-        aria-label="Toggle navigation"
+        :aria-label="t('topbar.toggleNavigation')"
         aria-controls="topbar-drawer"
         :aria-expanded="drawerOpen ? 'true' : 'false'"
         @click="drawerOpen = !drawerOpen"
       />
 
-      <RouterLink to="/dashboard" class="topbar__brand" aria-label="MES Manager home">
+      <RouterLink to="/dashboard" class="topbar__brand" :aria-label="t('topbar.home')">
         <span class="topbar__logo"><AppLogo :size="18" /></span>
         <span class="topbar__brand-text">
-          <span class="topbar__name">MES Manager</span>
-          <span class="topbar__tagline">Manufacturing Execution</span>
+          <span class="topbar__name">{{ t('app.name') }}</span>
+          <span class="topbar__tagline">{{ t('app.tagline') }}</span>
         </span>
       </RouterLink>
 
-      <nav class="topbar__nav" aria-label="Main navigation">
+      <nav class="topbar__nav" :aria-label="t('topbar.mainNavigation')">
         <template v-for="item in items" :key="item.to">
           <RouterLink
             v-if="!item.children.length"
@@ -129,12 +137,23 @@ function openGroup(event: Event, item: NavItem): void {
       <div class="topbar__right">
         <span class="topbar__clock">{{ clock() }}</span>
 
+        <Select
+          :model-value="app.lang"
+          :options="langOptions"
+          option-label="label"
+          option-value="code"
+          size="small"
+          class="topbar__select topbar__lang"
+          :aria-label="t('topbar.language')"
+          @update:model-value="app.setLang"
+        />
+
         <Button
           text
           severity="secondary"
           size="small"
           :icon="app.theme === 'dark' ? 'pi pi-sun' : 'pi pi-moon'"
-          :aria-label="app.theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'"
+          :aria-label="app.theme === 'dark' ? t('topbar.switchToLight') : t('topbar.switchToDark')"
           class="topbar__theme-button"
           @click="app.toggleTheme()"
         />
@@ -143,7 +162,7 @@ function openGroup(event: Event, item: NavItem): void {
           text
           severity="secondary"
           size="small"
-          aria-label="Open alarms"
+          :aria-label="t('topbar.openAlarms')"
           class="topbar__bell-button"
           @click="router.push({ name: 'dashboard' })"
         >
@@ -171,14 +190,14 @@ function openGroup(event: Event, item: NavItem): void {
           :options="plants"
           size="small"
           class="topbar__select"
-          aria-label="Plant"
+          :aria-label="t('common.plant')"
         />
         <Select
           v-model="app.shift"
           :options="shifts"
           size="small"
           class="topbar__select topbar__select--shift"
-          aria-label="Shift"
+          :aria-label="t('common.shift')"
         />
       </div>
     </div>
@@ -186,7 +205,7 @@ function openGroup(event: Event, item: NavItem): void {
     <!-- Mobile drawer: navigation + plant / shift context -->
     <div v-if="drawerOpen" class="topbar__backdrop" @click="drawerOpen = false" />
     <div v-if="drawerOpen" id="topbar-drawer" class="topbar__drawer">
-      <nav class="topbar__drawer-nav" aria-label="Mobile navigation">
+      <nav class="topbar__drawer-nav" :aria-label="t('topbar.mobileNavigation')">
         <template v-for="item in items" :key="item.to">
           <RouterLink
             v-if="!item.children.length"
@@ -223,14 +242,14 @@ function openGroup(event: Event, item: NavItem): void {
           :options="plants"
           size="small"
           class="topbar__select"
-          aria-label="Plant"
+          :aria-label="t('common.plant')"
         />
         <Select
           v-model="app.shift"
           :options="shifts"
           size="small"
           class="topbar__select topbar__select--shift"
-          aria-label="Shift"
+          :aria-label="t('common.shift')"
         />
       </div>
     </div>
@@ -438,6 +457,14 @@ function openGroup(event: Event, item: NavItem): void {
   min-width: 8rem;
 }
 
+.topbar__lang {
+  min-width: 5.5rem;
+}
+
+.topbar__lang :deep(.p-select-label) {
+  justify-content: flex-end;
+}
+
 .topbar__select--shift {
   min-width: 6rem;
 }
@@ -506,7 +533,7 @@ function openGroup(event: Event, item: NavItem): void {
 }
 
 .topbar__drawer-link--child {
-  padding-left: 2.3rem;
+  padding-inline-start: 2.3rem;
   font-size: var(--mes-fs-sm);
 }
 

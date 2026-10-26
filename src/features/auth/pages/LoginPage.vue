@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth.store'
 import { login } from '../services/auth.service'
 import { listProfiles, rememberProfile } from '../services/profile.service'
@@ -11,6 +12,7 @@ import type { LoginRole, WorkstationProfile } from '../types'
 const router = useRouter()
 const route = useRoute()
 const auth = useAuthStore()
+const { t } = useI18n()
 
 type Step = 'profiles' | 'password'
 
@@ -70,7 +72,7 @@ async function onSubmit(password: string): Promise<void> {
     const redirect = typeof route.query.redirect === 'string' ? route.query.redirect : '/dashboard'
     await router.replace(redirect)
   } catch (error) {
-    errorMessage.value = error instanceof Error ? error.message : 'Sign in failed.'
+    errorMessage.value = error instanceof Error ? error.message : t('auth.failed')
   } finally {
     submitting.value = false
   }
@@ -80,12 +82,12 @@ async function onSubmit(password: string): Promise<void> {
 <template>
   <div class="login">
     <header class="login__head">
-      <h1 class="login__title">Sign in</h1>
+      <h1 class="login__title">{{ t('auth.title') }}</h1>
       <p class="login__subtitle">
         {{
           step === 'profiles'
-            ? 'Select a workstation profile to continue'
-            : 'Enter the password for this workstation profile'
+            ? t('auth.profilesSubtitle')
+            : t('auth.passwordSubtitle')
         }}
       </p>
     </header>

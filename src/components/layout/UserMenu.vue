@@ -1,43 +1,47 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import Menu from 'primevue/menu'
 import Avatar from 'primevue/avatar'
 import { useAuthStore } from '@/stores/auth.store'
 
 const router = useRouter()
 const auth = useAuthStore()
+const { t } = useI18n()
 const menu = ref<InstanceType<typeof Menu>>()
 
-const items = [
+const items = computed(() => [
   {
-    label: 'Signed in as',
+    label: t('auth.menu.member'),
     items: [
       {
         label: auth.user?.name ?? 'Operator',
         disabled: true,
       },
       {
-        label: `Role: ${auth.user?.role ?? 'operator'}`,
+        label: t('auth.menu.roleValue', {
+          role: t(`auth.roles.${auth.user?.role ?? 'operator'}`),
+        }),
         disabled: true,
       },
     ],
   },
   {
-    label: 'Account',
+    label: t('auth.menu.account'),
     items: [
       {
-        label: 'Profile',
+        label: t('auth.menu.profile'),
         icon: 'pi pi-user',
         command: () => router.push({ name: 'settings' }),
       },
       {
-        label: 'Preferences',
+        label: t('auth.menu.preferences'),
         icon: 'pi pi-sliders-h',
         command: () => router.push({ name: 'settings' }),
       },
       {
-        label: 'Lock workstation',
+        label: t('auth.menu.lock'),
         icon: 'pi pi-lock',
         command: () => {
           auth.logout()
@@ -47,11 +51,11 @@ const items = [
     ],
   },
   {
-    label: 'Session',
+    label: t('auth.menu.session'),
     items: [
       {
-        label: 'Logout',
-        icon: 'pi pi-sign-out',
+        label: t('auth.menu.logout'),
+        icon: 'pi pi-sign-out rtl-flip',
         command: () => {
           auth.logout()
           router.push({ name: 'login' })
@@ -59,7 +63,7 @@ const items = [
       },
     ],
   },
-]
+])
 
 const initials = (auth.user?.name ?? 'OP')
   .split(' ')

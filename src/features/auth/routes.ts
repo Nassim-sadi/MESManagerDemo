@@ -6,7 +6,7 @@ const routes: FeatureRoutes = [
     name: 'login',
     component: () => import('./pages/LoginPage.vue'),
     meta: {
-      title: 'Sign in',
+      title: 'Sign in', titleKey: 'signIn',
       layout: 'auth',
       requiresAuth: false,
       showInMenu: false,

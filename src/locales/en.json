@@ -1,0 +1,119 @@
+{
+  "app": {
+    "name": "MES Manager",
+    "tagline": "Manufacturing Execution",
+    "taglineFull": "Manufacturing Execution System"
+  },
+  "common": {
+    "plant": "Plant",
+    "shift": "Shift",
+    "language": "Language",
+    "darkMode": "Dark theme",
+    "actions": "Actions"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "workOrders": "Work Orders",
+    "workOrderDetail": "Work order detail",
+    "production": "Production",
+    "productionLines": "Production Lines",
+    "lineDetail": "Line detail",
+    "inventory": "Inventory",
+    "stockOverview": "Stock Overview",
+    "materialMovements": "Material Movements",
+    "quality": "Quality",
+    "inspections": "Inspections",
+    "defects": "Defects",
+    "reports": "Reports",
+    "traceability": "Traceability",
+    "serialSearch": "Serial Number Search",
+    "productHistory": "Product History",
+    "lineAssignments": "Line Assignments",
+    "settings": "Settings",
+    "signIn": "Sign in",
+    "notFound": "Page not found"
+  },
+  "topbar": {
+    "openAlarms": "Open alarms",
+    "toggleNavigation": "Toggle navigation",
+    "switchToLight": "Switch to light theme",
+    "switchToDark": "Switch to dark theme",
+    "mainNavigation": "Main navigation",
+    "mobileNavigation": "Mobile navigation",
+    "home": "MES Manager home",
+    "language": "Language"
+  },
+  "auth": {
+    "signIn": "Sign in",
+    "title": "Sign in",
+    "profilesSubtitle": "Select a workstation profile to continue",
+    "passwordSubtitle": "Enter the password for this workstation profile",
+    "profiles": {
+      "lastSeen": "last sign in {time}",
+      "notUsedYet": "not used yet",
+      "manualTitle": "Sign in manually",
+      "manualRoles": "other account",
+      "manualHint": "user name and password"
+    },
+    "password": {
+      "backToProfiles": "Back to profiles",
+      "chooseAnotherProfile": "Choose another profile",
+      "userName": "User name",
+      "usernamePlaceholder": "e.g. j.kowalski",
+      "role": "Role",
+      "password": "Password",
+      "passwordPlaceholder": "Enter password",
+      "signIn": "Sign in",
+      "hint": "Demo environment — any password is accepted."
+    },
+    "roles": {
+      "operator": "Operator",
+      "supervisor": "Supervisor",
+      "admin": "Administrator"
+    },
+    "menu": {
+      "member": "Signed in as",
+      "roleValue": "Role: {role}",
+      "account": "Account",
+      "session": "Session",
+      "profile": "Profile",
+      "preferences": "Preferences",
+      "lock": "Lock workstation",
+      "logout": "Logout"
+    },
+    "aside": {
+      "plant": "Plant",
+      "shift": "Shift",
+      "terminal": "Terminal",
+      "online": "Shop floor station 3",
+      "note": "Demo environment — every record on this screen is sample production data."
+    },
+    "failed": "Sign in failed."
+  },
+  "settings": {
+    "title": "Settings",
+    "subtitle": "Plant defaults, thresholds and demo user roles",
+    "plantDefaults": "Plant defaults",
+    "timeZone": "Time zone",
+    "shiftPolicy": "Shift policy",
+    "darkTheme": "Dark theme",
+    "oeeWarning": "OEE warning threshold (%)",
+    "scrapAlarm": "Scrap alarm threshold (%)",
+    "refreshInterval": "Live refresh interval (s)",
+    "save": "Save settings",
+    "savedSummary": "Settings saved",
+    "savedMessage": "Configuration stored for this demo session.",
+    "demoUsers": "Demo users",
+    "demoUsersSub": "role decides menu and actions",
+    "demoUsersUser": "User",
+    "demoUsersRole": "Role",
+    "permissions": "{count} permissions"
+  },
+  "errors": {
+    "notFound": {
+      "title": "Page not found",
+      "message": "The requested screen does not exist or the route was renamed.",
+      "back": "Back to dashboard"
+    }
+  }
+}

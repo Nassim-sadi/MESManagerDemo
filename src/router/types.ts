@@ -7,6 +7,12 @@ import type { RouteRecordRaw } from 'vue-router'
 export interface AppRouteMeta {
   /** Human readable label, also used for the browser title. */
   title: string
+  /**
+   * Optional i18n key for the title (`nav.*` namespace). When present the
+   * navigation, breadcrumbs and the document title use `t(titleKey)`
+   * instead of the raw `title`.
+   */
+  titleKey?: string
   /** PrimeIcons class, e.g. 'pi pi-building'. */
   icon?: string
   /** Sort order inside the navigation. */

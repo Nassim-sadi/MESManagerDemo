@@ -7,7 +7,7 @@ const routes: FeatureRoutes = [
     name: 'dashboard',
     component: () => import('./pages/DashboardPage.vue'),
     meta: {
-      title: 'Dashboard',
+      title: 'Dashboard', titleKey: 'dashboard',
       icon: 'pi pi-th-large',
       order: 10,
       showInMenu: true,

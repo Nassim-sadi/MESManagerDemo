@@ -7,7 +7,7 @@ const routes: FeatureRoutes = [
     path: 'work-orders',
     name: 'work-orders',
     meta: {
-      title: 'Work orders',
+      title: 'Work orders', titleKey: 'workOrders',
       showInMenu: false,
     },
     children: [
@@ -16,7 +16,7 @@ const routes: FeatureRoutes = [
         name: 'work-orders-list',
         component: () => import('./pages/WorkOrdersPage.vue'),
         meta: {
-          title: 'Work Orders',
+          title: 'Work Orders', titleKey: 'workOrders',
           icon: 'pi pi-list-check',
           order: 2,
           showInMenu: true,
@@ -29,7 +29,7 @@ const routes: FeatureRoutes = [
         name: 'work-order-detail',
         component: () => import('./pages/WorkOrderDetailPage.vue'),
         meta: {
-          title: 'Work order detail',
+          title: 'Work order detail', titleKey: 'workOrderDetail',
           showInMenu: false,
         },
       },

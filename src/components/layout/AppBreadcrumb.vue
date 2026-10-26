@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 
 const props = withDefaults(
   defineProps<{
@@ -10,12 +11,14 @@ const props = withDefaults(
 )
 
 const route = useRoute()
+const { t } = useI18n()
 
 const crumbs = computed(() => {
   const entries = route.matched
     .filter((record) => record.meta.title && record.path !== '/')
     .map((record) => ({
-      title: record.meta.title,
+      key: record.meta.titleKey ?? record.meta.title,
+      label: t((record.meta.titleKey as string) ?? record.meta.title),
       to: record.path,
     }))
 
@@ -23,8 +26,7 @@ const crumbs = computed(() => {
   // ("Work orders" > "Work Orders") - show the trail only once.
   return entries.filter(
     (entry, index) =>
-      index === entries.length - 1 ||
-      entry.title.toLowerCase() !== entries[index + 1]!.title.toLowerCase(),
+      index === entries.length - 1 || entry.key !== entries[index + 1]!.key,
   )
 })
 </script>
@@ -32,11 +34,11 @@ const crumbs = computed(() => {
 <template>
   <nav class="breadcrumb" :class="`breadcrumb--${props.variant}`" aria-label="Breadcrumb">
     <template v-for="(crumb, index) in crumbs" :key="crumb.to">
-      <i v-if="index > 0" class="pi pi-angle-right breadcrumb__sep" />
+      <i v-if="index > 0" class="pi pi-angle-right breadcrumb__sep rtl-flip" />
       <span
         :class="['breadcrumb__item', { 'breadcrumb__item--current': index === crumbs.length - 1 }]"
       >
-        {{ crumb.title }}
+        {{ crumb.label }}
       </span>
     </template>
   </nav>

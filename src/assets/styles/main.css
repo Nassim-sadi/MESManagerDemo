@@ -185,3 +185,9 @@ h4 {
   outline: 2px solid var(--mes-accent);
   outline-offset: 1px;
 }
+
+/* --- Right-to-left flips ------------------------------------------------ */
+
+[dir='rtl'] .rtl-flip {
+  transform: scaleX(-1);
+}

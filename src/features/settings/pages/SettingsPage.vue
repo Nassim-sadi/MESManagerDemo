@@ -9,12 +9,14 @@ import Column from 'primevue/column'
 import Tag from 'primevue/tag'
 import ToggleSwitch from 'primevue/toggleswitch'
 import { useToast } from 'primevue/usetoast'
+import { useI18n } from 'vue-i18n'
 import PageHeader from '@/components/shared/PageHeader.vue'
 import { useAppStore } from '@/stores/app.store'
 import { ROLE_PERMISSIONS } from '@/stores/auth.store'
 import type { UserRole } from '@/stores/auth.store'
 
 const toast = useToast()
+const { t } = useI18n()
 const app = useAppStore()
 
 const isDark = computed(() => app.theme === 'dark')
@@ -43,8 +45,8 @@ const demoUsers = [
 function save(): void {
   toast.add({
     severity: 'success',
-    summary: 'Settings saved',
-    detail: 'Configuration stored for this demo session.',
+    summary: t('settings.savedSummary'),
+    detail: t('settings.savedMessage'),
     life: 2500,
   })
 }
@@ -56,73 +58,73 @@ function permissionCount(role: string): number {
 
 <template>
   <div class="settings">
-    <PageHeader title="Settings" subtitle="Plant defaults, thresholds and demo user roles" />
+    <PageHeader :title="t('settings.title')" :subtitle="t('settings.subtitle')" />
 
     <div class="columns">
       <section class="mes-card">
         <header class="mes-card__header">
-          <span class="mes-card__title">Plant defaults</span>
+          <span class="mes-card__title">{{ t('settings.plantDefaults') }}</span>
         </header>
         <div class="mes-card__body form">
           <label class="form__field">
-            <span class="form__label">Plant</span>
+            <span class="form__label">{{ t('common.plant') }}</span>
             <InputText v-model="plant" fluid />
           </label>
 
           <label class="form__field">
-            <span class="form__label">Time zone</span>
+            <span class="form__label">{{ t('settings.timeZone') }}</span>
             <Select v-model="timezone" :options="timezoneOptions" fluid />
           </label>
 
           <label class="form__field">
-            <span class="form__label">Dark theme</span>
+            <span class="form__label">{{ t('settings.darkTheme') }}</span>
             <ToggleSwitch :model-value="isDark" @update:model-value="setDark" />
           </label>
 
           <label class="form__field">
-            <span class="form__label">Shift policy</span>
+            <span class="form__label">{{ t('settings.shiftPolicy') }}</span>
             <Select v-model="shiftPolicy" :options="shiftOptions" fluid />
           </label>
 
           <label class="form__field">
-            <span class="form__label">OEE warning threshold (%)</span>
+            <span class="form__label">{{ t('settings.oeeWarning') }}</span>
             <InputNumber v-model="oeeWarning" :min="0" :max="100" fluid />
           </label>
 
           <label class="form__field">
-            <span class="form__label">Scrap alarm threshold (%)</span>
+            <span class="form__label">{{ t('settings.scrapAlarm') }}</span>
             <InputNumber v-model="scrapAlarm" :min="0" :max="100" :min-fraction-digits="1" fluid />
           </label>
 
           <label class="form__field">
-            <span class="form__label">Live refresh interval (s)</span>
+            <span class="form__label">{{ t('settings.refreshInterval') }}</span>
             <InputNumber v-model="refreshInterval" :min="1" :max="60" fluid />
           </label>
 
           <div class="form__actions">
-            <Button label="Save settings" icon="pi pi-check" @click="save" />
+            <Button :label="t('settings.save')" icon="pi pi-check" @click="save" />
           </div>
         </div>
       </section>
 
       <section class="mes-card">
         <header class="mes-card__header">
-          <span class="mes-card__title">Demo users</span>
-          <span class="mes-eyebrow">role decides menu and actions</span>
+          <span class="mes-card__title">{{ t('settings.demoUsers') }}</span>
+          <span class="mes-eyebrow">{{ t('settings.demoUsersSub') }}</span>
         </header>
         <DataTable :value="demoUsers" size="small" striped-rows>
-          <Column field="name" header="User">
+          <Column field="name" :header="t('settings.demoUsersUser')" style="width: 9rem">
             <template #body="{ data }">
               <span class="mes-mono">{{ data.name }}</span>
             </template>
           </Column>
-          <Column field="role" header="Role" style="width: 9rem">
+          <Column field="role" :header="t('settings.demoUsersRole')" style="width: 9rem">
             <template #body="{ data }">
-              <Tag :value="data.role" severity="secondary" />
+              <Tag :value="t(`auth.roles.${data.role}`)" severity="secondary" />
             </template>
           </Column>
-          <Column field="shift" header="Shift" style="width: 8rem" />
-          <Column header="Permissions" style="width: 8rem">
+          <Column field="shift" :header="t('common.shift')" style="width: 8rem" />
+          <Column :header="t('settings.permissions')" style="width: 8rem">
             <template #body="{ data }">
               <span class="mes-mono">{{ permissionCount(data.role) }}</span>
             </template>

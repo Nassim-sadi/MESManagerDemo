@@ -1,10 +1,13 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { formatRelative } from '@/utils/format'
 import type { WorkstationProfile } from '../types'
 
 defineProps<{
   profiles: WorkstationProfile[]
 }>()
+
+const { t } = useI18n()
 
 const emit = defineEmits<{
   select: [profile: WorkstationProfile]
@@ -34,26 +37,26 @@ function initials(name: string): string {
         <span class="profile__avatar" :data-role="profile.role">{{ initials(profile.name) }}</span>
         <span class="profile__text">
           <span class="profile__name">{{ profile.name }}</span>
-          <span class="profile__role">{{ profile.role }}</span>
+          <span class="profile__role">{{ t(`auth.roles.${profile.role}`) }}</span>
           <span class="profile__seen">
             {{
               profile.lastSeenAt
-                ? `last sign in ${formatRelative(profile.lastSeenAt)}`
-                : 'not used yet'
+                ? t('auth.profiles.lastSeen', { time: formatRelative(profile.lastSeenAt) })
+                : t('auth.profiles.notUsedYet')
             }}
           </span>
         </span>
-        <i class="pi pi-angle-right profile__arrow" />
+        <i class="pi pi-angle-right profile__arrow rtl-flip" />
       </button>
 
       <button type="button" class="profile profile--manual" @click="emit('manual')">
         <span class="profile__avatar profile__avatar--manual"><i class="pi pi-user-plus" /></span>
         <span class="profile__text">
-          <span class="profile__name">Sign in manually</span>
-          <span class="profile__role">other account</span>
-          <span class="profile__seen">user name and password</span>
+          <span class="profile__name">{{ t('auth.profiles.manualTitle') }}</span>
+          <span class="profile__role">{{ t('auth.profiles.manualRoles') }}</span>
+          <span class="profile__seen">{{ t('auth.profiles.manualHint') }}</span>
         </span>
-        <i class="pi pi-angle-right profile__arrow" />
+        <i class="pi pi-angle-right profile__arrow rtl-flip" />
       </button>
     </div>
   </div>
@@ -71,7 +74,7 @@ function initials(name: string): string {
   align-items: center;
   gap: 0.7rem;
   padding: 0.7rem 0.75rem;
-  text-align: left;
+  text-align: start;
   background: var(--mes-surface);
   border: 1px solid var(--mes-border);
   border-radius: var(--mes-radius);

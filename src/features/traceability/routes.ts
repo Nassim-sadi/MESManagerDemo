@@ -6,7 +6,7 @@ const routes: FeatureRoutes = [
     path: 'traceability',
     name: 'traceability',
     meta: {
-      title: 'Traceability',
+      title: 'Traceability', titleKey: 'traceability',
       icon: 'pi pi-search',
       order: 30,
       showInMenu: true,
@@ -18,7 +18,7 @@ const routes: FeatureRoutes = [
         name: 'traceability-search',
         component: () => import('./pages/TraceabilityPage.vue'),
         meta: {
-          title: 'Serial Number Search',
+          title: 'Serial Number Search', titleKey: 'serialSearch',
           icon: 'pi pi-barcode',
           order: 1,
           showInMenu: true,
@@ -29,7 +29,7 @@ const routes: FeatureRoutes = [
         name: 'traceability-product-history',
         component: () => import('./pages/ProductHistoryPage.vue'),
         meta: {
-          title: 'Product History',
+          title: 'Product History', titleKey: 'productHistory',
           icon: 'pi pi-history',
           order: 2,
           showInMenu: true,

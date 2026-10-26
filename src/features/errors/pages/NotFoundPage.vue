@@ -1,18 +1,20 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import Button from 'primevue/button'
 
 const router = useRouter()
+const { t } = useI18n()
 </script>
 
 <template>
   <div class="not-found">
     <p class="not-found__code">404</p>
-    <h1 class="not-found__title">Page not found</h1>
-    <p class="not-found__message">The requested screen does not exist or the route was renamed.</p>
+    <h1 class="not-found__title">{{ t('errors.notFound.title') }}</h1>
+    <p class="not-found__message">{{ t('errors.notFound.message') }}</p>
     <Button
-      label="Back to dashboard"
-      icon="pi pi-arrow-left"
+      :label="t('errors.notFound.back')"
+      icon="pi pi-arrow-left rtl-flip"
       @click="router.push({ name: 'dashboard' })"
     />
   </div>

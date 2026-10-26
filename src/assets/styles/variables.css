@@ -70,7 +70,7 @@
 
   /* Typography */
   --mes-font-sans:
-    'Inter', 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif;
+    'Inter', 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', Arial, 'Noto Sans Arabic', 'Segoe UI Arabic', sans-serif;
   --mes-font-mono:
     'Cascadia Mono', 'JetBrains Mono', 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
 

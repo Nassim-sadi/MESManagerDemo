@@ -1,6 +1,8 @@
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
 
+import { setLocale, type AppLocale } from '@/plugins/i18n'
+
 export type ThemeMode = 'light' | 'dark'
 
 const THEME_KEY = 'mes.theme'
@@ -28,9 +30,18 @@ export const useAppStore = defineStore('app', () => {
   // (main.ts applies it earlier to avoid a flash on first paint).
   applyTheme(theme.value)
 
+  const lang = ref<AppLocale>(
+    localStorage.getItem('mes.lang') === 'ar' ? 'ar' : 'en',
+  )
+
+  function setLang(locale: AppLocale): void {
+    lang.value = locale
+    setLocale(locale)
+  }
+
   function markSynced(): void {
     lastSyncAt.value = new Date()
   }
 
-  return { plant, shift, lastSyncAt, theme, toggleTheme, markSynced }
+  return { plant, shift, lastSyncAt, theme, toggleTheme, lang, setLang, markSynced }
 })

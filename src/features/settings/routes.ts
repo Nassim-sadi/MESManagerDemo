@@ -7,7 +7,7 @@ const routes: FeatureRoutes = [
     name: 'settings',
     component: () => import('./pages/SettingsPage.vue'),
     meta: {
-      title: 'Settings',
+      title: 'Settings', titleKey: 'settings',
       icon: 'pi pi-cog',
       order: 90,
       showInMenu: true,

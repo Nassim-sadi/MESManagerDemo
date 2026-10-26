@@ -7,7 +7,7 @@ const routes: FeatureRoutes = [
     name: 'reports',
     component: () => import('./pages/ReportsPage.vue'),
     meta: {
-      title: 'Reports',
+      title: 'Reports', titleKey: 'reports',
       icon: 'pi pi-chart-bar',
       order: 60,
       showInMenu: true,

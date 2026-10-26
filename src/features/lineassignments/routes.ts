@@ -6,7 +6,7 @@ const routes: FeatureRoutes = [
     name: 'line-assignments',
     component: () => import('./pages/LineAssignmentsPage.vue'),
     meta: {
-      title: 'Line Assignments',
+      title: 'Line Assignments', titleKey: 'lineAssignments',
       icon: 'pi pi-sliders-h',
       order: 12,
       showInMenu: true,

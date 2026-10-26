@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import Password from 'primevue/password'
 import InputText from 'primevue/inputtext'
 import Select from 'primevue/select'
 import Button from 'primevue/button'
 import Message from 'primevue/message'
+import { useI18n } from 'vue-i18n'
 import type { LoginRole } from '../types'
 
 const props = defineProps<{
@@ -18,6 +19,8 @@ const props = defineProps<{
   manualRole?: LoginRole
 }>()
 
+const { t } = useI18n()
+
 const emit = defineEmits<{
   submit: [password: string]
   back: []
@@ -27,11 +30,11 @@ const emit = defineEmits<{
 
 const password = ref('')
 
-const roles: { label: string; value: LoginRole }[] = [
-  { label: 'Operator', value: 'operator' },
-  { label: 'Supervisor', value: 'supervisor' },
-  { label: 'Administrator', value: 'admin' },
-]
+const roles = computed<{ label: string; value: LoginRole }[]>(() => [
+  { label: t('auth.roles.operator'), value: 'operator' },
+  { label: t('auth.roles.supervisor'), value: 'supervisor' },
+  { label: t('auth.roles.admin'), value: 'admin' },
+])
 
 function onSubmit(): void {
   if (!password.value) return
@@ -51,25 +54,25 @@ function initials(name: string): string {
 <template>
   <form class="step" @submit.prevent="onSubmit">
     <button type="button" class="step__back" @click="emit('back')">
-      <i class="pi pi-arrow-left" />
-      <span>{{ props.manual ? 'Back to profiles' : 'Choose another profile' }}</span>
+      <i class="pi pi-arrow-left rtl-flip" />
+      <span>{{ props.manual ? t('auth.password.backToProfiles') : t('auth.password.chooseAnotherProfile') }}</span>
     </button>
 
     <template v-if="props.manual">
       <div class="step__row">
         <label class="step__field">
-          <span class="step__label">User name</span>
+          <span class="step__label">{{ t('auth.password.userName') }}</span>
           <InputText
             :model-value="props.username"
             autocomplete="username"
-            placeholder="e.g. j.kowalski"
+            :placeholder="t('auth.password.usernamePlaceholder')"
             fluid
             @update:model-value="emit('update:username', $event ?? '')"
           />
         </label>
 
         <label class="step__field">
-          <span class="step__label">Role</span>
+          <span class="step__label">{{ t('auth.password.role') }}</span>
           <Select
             :model-value="props.manualRole"
             :options="roles"
@@ -91,7 +94,7 @@ function initials(name: string): string {
     </div>
 
     <label class="step__field">
-      <span class="step__label">Password</span>
+      <span class="step__label">{{ t('auth.password.password') }}</span>
       <Password
         v-model="password"
         :feedback="false"
@@ -99,7 +102,7 @@ function initials(name: string): string {
         autocomplete="current-password"
         fluid
         input-class="w-full"
-        placeholder="Enter password"
+        :placeholder="t('auth.password.passwordPlaceholder')"
       />
     </label>
 
@@ -109,14 +112,14 @@ function initials(name: string): string {
 
     <Button
       type="submit"
-      label="Sign in"
+      :label="t('auth.signIn')"
       icon="pi pi-sign-in"
       :loading="loading"
       :disabled="!password || (props.manual && !props.username)"
       fluid
     />
 
-    <p class="step__hint">Demo environment — any password is accepted.</p>
+    <p class="step__hint">{{ t('auth.password.hint') }}</p>
   </form>
 </template>
 
