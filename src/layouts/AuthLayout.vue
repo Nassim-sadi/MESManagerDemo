@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref } from 'vue'
 import { RouterView } from 'vue-router'
+import AppLogo from '@/components/brand/AppLogo.vue'
 
 const now = ref(new Date())
 let timer: number | undefined
@@ -36,7 +37,7 @@ const date = () =>
   <div class="auth">
     <aside class="auth__aside">
       <div class="auth__brand">
-        <span class="auth__logo"><i class="pi pi-box" /></span>
+        <span class="auth__logo"><AppLogo :size="22" /></span>
         <div>
           <div class="auth__name">MES Manager</div>
           <div class="auth__sub">Manufacturing Execution System</div>

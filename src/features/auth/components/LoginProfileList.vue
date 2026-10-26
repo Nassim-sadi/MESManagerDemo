@@ -107,13 +107,13 @@ function initials(name: string): string {
 }
 
 .profile__avatar[data-role='supervisor'] {
-  background: #eef4ea;
-  color: #4c7a3f;
+  background: var(--mes-role-supervisor-bg);
+  color: var(--mes-role-supervisor-fg);
 }
 
 .profile__avatar[data-role='admin'] {
-  background: #f3eef7;
-  color: #6b4b86;
+  background: var(--mes-role-admin-bg);
+  color: var(--mes-role-admin-fg);
 }
 
 .profile__avatar--manual {

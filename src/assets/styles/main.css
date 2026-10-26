@@ -144,6 +144,18 @@ h4 {
   border: 1px solid var(--mes-tone-border);
 }
 
+/* Status tags: PrimeVue injects its severity styles at runtime after this
+   file, so the .p-tag pair-up here is needed to win the cascade. */
+.p-tag.mes-tone--ok,
+.p-tag.mes-tone--warn,
+.p-tag.mes-tone--alarm,
+.p-tag.mes-tone--idle,
+.p-tag.mes-tone--info {
+  color: var(--mes-tone-fg);
+  background: var(--mes-tone-bg);
+  border: 1px solid var(--mes-tone-border);
+}
+
 /* --- Scrollbars -------------------------------------------------------- */
 
 * {

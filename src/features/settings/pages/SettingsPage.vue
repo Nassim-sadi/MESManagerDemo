@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import InputNumber from 'primevue/inputnumber'
 import Select from 'primevue/select'
 import InputText from 'primevue/inputtext'
@@ -7,12 +7,21 @@ import Button from 'primevue/button'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import Tag from 'primevue/tag'
+import ToggleSwitch from 'primevue/toggleswitch'
 import { useToast } from 'primevue/usetoast'
 import PageHeader from '@/components/shared/PageHeader.vue'
+import { useAppStore } from '@/stores/app.store'
 import { ROLE_PERMISSIONS } from '@/stores/auth.store'
 import type { UserRole } from '@/stores/auth.store'
 
 const toast = useToast()
+const app = useAppStore()
+
+const isDark = computed(() => app.theme === 'dark')
+
+function setDark(value: boolean): void {
+  if (value !== isDark.value) app.toggleTheme()
+}
 
 const plant = ref('Plant 04 - Bratislava')
 const timezone = ref('Europe/Bratislava')
@@ -63,6 +72,11 @@ function permissionCount(role: string): number {
           <label class="form__field">
             <span class="form__label">Time zone</span>
             <Select v-model="timezone" :options="timezoneOptions" fluid />
+          </label>
+
+          <label class="form__field">
+            <span class="form__label">Dark theme</span>
+            <ToggleSwitch :model-value="isDark" @update:model-value="setDark" />
           </label>
 
           <label class="form__field">

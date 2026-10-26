@@ -13,6 +13,11 @@ import App from './App.vue'
 import router from './router'
 import theme from './app/theme'
 
+// Apply the persisted theme before mount so switching to dark never flashes.
+if (localStorage.getItem('mes.theme') === 'dark') {
+  document.documentElement.classList.add('mes-dark')
+}
+
 const app = createApp(App)
 
 app.use(createPinia())
@@ -22,7 +27,7 @@ app.use(PrimeVue, {
   theme: {
     preset: theme,
     options: {
-      darkModeSelector: false,
+      darkModeSelector: '.mes-dark',
     },
   },
 })

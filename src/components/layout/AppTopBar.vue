@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { computed, watch, onMounted, onUnmounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import Menu from 'primevue/menu'
 import type { MenuItem } from 'primevue/menuitem'
@@ -7,6 +7,7 @@ import Select from 'primevue/select'
 import Button from 'primevue/button'
 import Badge from 'primevue/badge'
 import AppBreadcrumb from './AppBreadcrumb.vue'
+import AppLogo from '@/components/brand/AppLogo.vue'
 import UserMenu from './UserMenu.vue'
 import { useAppStore } from '@/stores/app.store'
 import { useAlarmsStore } from '@/stores/alarms.store'
@@ -21,6 +22,17 @@ const { items } = useNavigation()
 
 const menu = ref<InstanceType<typeof Menu>>()
 const menuModel = ref<MenuItem[]>([])
+
+const drawerOpen = ref(false)
+const drawerIcon = computed(() => (drawerOpen.value ? 'pi pi-times' : 'pi pi-bars'))
+
+// Close the mobile drawer whenever navigation happens.
+watch(
+  () => route.fullPath,
+  () => {
+    drawerOpen.value = false
+  },
+)
 
 const plants = ['Plant 04 - Bratislava', 'Plant 07 - Linz', 'Plant 11 - Debrecen']
 const shifts = ['Shift A', 'Shift B', 'Shift C']
@@ -67,8 +79,20 @@ function openGroup(event: Event, item: NavItem): void {
   <header class="topbar">
     <!-- Level 1: brand, navigation, session context -->
     <div class="topbar__main">
+      <Button
+        class="topbar__burger"
+        :icon="drawerIcon"
+        text
+        severity="secondary"
+        size="small"
+        aria-label="Toggle navigation"
+        aria-controls="topbar-drawer"
+        :aria-expanded="drawerOpen ? 'true' : 'false'"
+        @click="drawerOpen = !drawerOpen"
+      />
+
       <RouterLink to="/dashboard" class="topbar__brand" aria-label="MES Manager home">
-        <span class="topbar__logo"><i class="pi pi-box" /></span>
+        <span class="topbar__logo"><AppLogo :size="18" /></span>
         <span class="topbar__brand-text">
           <span class="topbar__name">MES Manager</span>
           <span class="topbar__tagline">Manufacturing Execution</span>
@@ -106,7 +130,16 @@ function openGroup(event: Event, item: NavItem): void {
         <span class="topbar__clock">{{ clock() }}</span>
 
         <Button
-          icon="pi pi-bell"
+          text
+          severity="secondary"
+          size="small"
+          :icon="app.theme === 'dark' ? 'pi pi-sun' : 'pi pi-moon'"
+          :aria-label="app.theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'"
+          class="topbar__theme-button"
+          @click="app.toggleTheme()"
+        />
+
+        <Button
           text
           severity="secondary"
           size="small"
@@ -128,9 +161,63 @@ function openGroup(event: Event, item: NavItem): void {
 
     <!-- Level 2: current page on the left, plant / shift on the right -->
     <div class="topbar__level2">
-      <AppBreadcrumb variant="dark" />
+      <div class="topbar__breadcrumb">
+        <AppBreadcrumb variant="dark" />
+      </div>
 
       <div class="topbar__context">
+        <Select
+          v-model="app.plant"
+          :options="plants"
+          size="small"
+          class="topbar__select"
+          aria-label="Plant"
+        />
+        <Select
+          v-model="app.shift"
+          :options="shifts"
+          size="small"
+          class="topbar__select topbar__select--shift"
+          aria-label="Shift"
+        />
+      </div>
+    </div>
+
+    <!-- Mobile drawer: navigation + plant / shift context -->
+    <div v-if="drawerOpen" class="topbar__backdrop" @click="drawerOpen = false" />
+    <div v-if="drawerOpen" id="topbar-drawer" class="topbar__drawer">
+      <nav class="topbar__drawer-nav" aria-label="Mobile navigation">
+        <template v-for="item in items" :key="item.to">
+          <RouterLink
+            v-if="!item.children.length"
+            :to="item.to"
+            class="topbar__drawer-link"
+            :class="{ 'topbar__drawer-link--active': isActive(item) }"
+          >
+            <i v-if="item.icon" :class="item.icon" />
+            <span>{{ item.label }}</span>
+          </RouterLink>
+
+          <template v-else>
+            <span class="topbar__drawer-group">
+              <i v-if="item.icon" :class="item.icon" />
+              <span>{{ item.label }}</span>
+            </span>
+            <RouterLink
+              v-for="child in item.children"
+              :key="child.to"
+              :to="child.to"
+              class="topbar__drawer-link topbar__drawer-link--child"
+              :class="{ 'topbar__drawer-link--active': child.to === route.path }"
+            >
+              <i v-if="child.icon" :class="child.icon" />
+              <span>{{ child.label }}</span>
+            </RouterLink>
+          </template>
+        </template>
+      </nav>
+
+      <div class="topbar__drawer-context">
         <Select
           v-model="app.plant"
           :options="plants"
@@ -154,6 +241,7 @@ function openGroup(event: Event, item: NavItem): void {
 
 <style scoped>
 .topbar {
+  position: relative;
   display: flex;
   flex-direction: column;
   flex: 0 0 auto;
@@ -170,6 +258,10 @@ function openGroup(event: Event, item: NavItem): void {
   gap: 0.75rem;
   height: var(--mes-header-height);
   padding: 0 0.75rem;
+}
+
+.topbar__burger {
+  display: none;
 }
 
 .topbar__brand {
@@ -189,7 +281,6 @@ function openGroup(event: Event, item: NavItem): void {
   border-radius: var(--mes-radius-sm);
   background: var(--mes-accent);
   color: #fff;
-  font-size: 0.8rem;
   flex: 0 0 auto;
 }
 
@@ -241,6 +332,7 @@ function openGroup(event: Event, item: NavItem): void {
   font-size: var(--mes-fs-sm);
   white-space: nowrap;
   cursor: pointer;
+  text-decoration: none;
   transition:
     background var(--mes-transition),
     color var(--mes-transition);
@@ -287,6 +379,15 @@ function openGroup(event: Event, item: NavItem): void {
   color: var(--mes-nav-text);
 }
 
+/* Dark-nav icon buttons stay quiet: exempt them from the global
+   secondary-chip style (see primevue-overrides.css). */
+.topbar .topbar__burger.p-button:not(:disabled),
+.topbar .topbar__theme-button.p-button:not(:disabled),
+.topbar .topbar__bell-button.p-button:not(:disabled) {
+  background: transparent;
+  border-color: transparent;
+}
+
 .topbar__bell-button.p-button:not(:disabled):hover {
   background: rgba(255 255 255 / 10%);
   color: #f2f6fa;
@@ -321,10 +422,16 @@ function openGroup(event: Event, item: NavItem): void {
   border-top: 1px solid var(--mes-nav-border);
 }
 
+.topbar__breadcrumb {
+  min-width: 0;
+  overflow: hidden;
+}
+
 .topbar__context {
   display: flex;
   align-items: center;
   gap: 0.4rem;
+  flex: 0 0 auto;
 }
 
 .topbar__select {
@@ -355,7 +462,84 @@ function openGroup(event: Event, item: NavItem): void {
   color: #8fa3b6;
 }
 
-/* --- Narrow workstations ------------------------------------------------ */
+/* --- Mobile drawer ------------------------------------------------------ */
+
+.topbar__backdrop {
+  display: none;
+}
+
+.topbar__drawer {
+  display: none;
+}
+
+.topbar__drawer-nav {
+  display: flex;
+  flex-direction: column;
+  padding: 0.5rem 0.75rem 0.25rem;
+}
+
+.topbar__drawer-link {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  min-height: 44px;
+  padding: 0.55rem 0.75rem;
+  border-radius: var(--mes-radius-sm);
+  color: var(--mes-nav-text);
+  font-size: var(--mes-fs-md);
+  text-decoration: none;
+}
+
+.topbar__drawer-link i {
+  font-size: 0.95rem;
+}
+
+.topbar__drawer-link:hover {
+  background: var(--mes-nav-hover);
+  color: #f2f6fa;
+}
+
+.topbar__drawer-link--active,
+.topbar__drawer-link--active:hover {
+  background: var(--mes-accent);
+  color: #fff;
+}
+
+.topbar__drawer-link--child {
+  padding-left: 2.3rem;
+  font-size: var(--mes-fs-sm);
+}
+
+.topbar__drawer-group {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.75rem 0.75rem 0.25rem;
+  font-size: var(--mes-fs-xs);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--mes-nav-text-muted);
+}
+
+.topbar__drawer-group i {
+  font-size: 0.8rem;
+}
+
+.topbar__drawer-context {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.4rem;
+  padding: 0.5rem 0.75rem 0.85rem;
+  border-top: 1px solid var(--mes-nav-border);
+}
+
+.topbar__drawer-context .topbar__select {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+/* --- Narrow workstations and tablet ------------------------------------- */
 
 @media (max-width: 1340px) {
   .topbar__link {
@@ -376,9 +560,60 @@ function openGroup(event: Event, item: NavItem): void {
   }
 }
 
+/* Tablet: keep the context row, drop the breadcrumb */
 @media (max-width: 1180px) {
+  .topbar__breadcrumb {
+    display: none;
+  }
+
+  .topbar__context {
+    margin-left: auto;
+  }
+}
+
+/* Mobile: hamburger + drawer replaces the horizontal nav */
+@media (max-width: 768px) {
+  .topbar__burger {
+    display: inline-flex;
+  }
+
+  .topbar__brand-text,
+  .topbar__clock,
+  .topbar__nav,
   .topbar__level2 {
     display: none;
+  }
+
+  .topbar__backdrop {
+    display: block;
+    position: fixed;
+    top: var(--mes-header-height);
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 30;
+    background: rgb(16 29 42 / 35%);
+  }
+
+  .topbar__drawer {
+    display: block;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 40;
+    background: var(--mes-nav-sub);
+    border-bottom: 1px solid var(--mes-nav-border);
+    box-shadow: var(--mes-shadow-popup);
+  }
+
+  .topbar__burger.p-button {
+    color: var(--mes-nav-text);
+  }
+
+  .topbar__burger.p-button:not(:disabled):hover {
+    background: rgba(255 255 255 / 10%);
+    color: #f2f6fa;
   }
 }
 </style>

@@ -9,6 +9,40 @@
   font-size: 13px;
 }
 
+/* Secondary "text" buttons render as bordered chips so row actions such as
+   "Acknowledge" read as buttons instead of muted labels. Colors come from
+   the theme preset (src/app/theme.ts); the border lives here because
+   PrimeVue's text variant has no border tokens. */
+.p-button-secondary.p-button-text:not(:disabled) {
+  background-color: var(--mes-surface-sunken);
+  border-color: var(--mes-border);
+}
+
+.p-button-secondary.p-button-text:not(:disabled):hover {
+  background-color: var(--mes-btn-hover-bg);
+  border-color: var(--mes-border-strong);
+  color: var(--mes-text-strong);
+}
+
+.p-button-secondary.p-button-text:not(:disabled):active {
+  background-color: var(--mes-btn-active-bg);
+  border-color: var(--mes-border-strong);
+  transform: translateY(1px);
+}
+
+/* Micro-interactions: smooth fades and a physical press on :active. */
+.p-button:not(:disabled) {
+  transition:
+    background-color 140ms ease,
+    border-color 140ms ease,
+    color 140ms ease,
+    transform 120ms ease;
+}
+
+.p-button:not(:disabled):active {
+  transform: translateY(1px);
+}
+
 .p-inputtext,
 .p-textarea,
 .p-select-label,
@@ -73,7 +107,7 @@
 }
 
 .p-datatable .p-datatable-tbody > tr > td {
-  border-color: #e6ebf0;
+  border-color: var(--mes-border-soft);
 }
 
 .p-datatable .p-datatable-tbody > tr {

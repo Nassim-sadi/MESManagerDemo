@@ -27,6 +27,7 @@
   /* Lines */
   --mes-border: #d7dee5;
   --mes-border-strong: #c3ced8;
+  --mes-border-soft: #e6ebf0;
 
   /* Accent */
   --mes-accent: #2563a6;
@@ -47,6 +48,20 @@
   --mes-idle: #52606d;
   --mes-idle-bg: #f1f4f7;
   --mes-idle-border: #d7dee5;
+
+  /* Role badge tones (login profiles) */
+  --mes-role-supervisor-bg: #eef4ea;
+  --mes-role-supervisor-fg: #4c7a3f;
+  --mes-role-admin-bg: #f3eef7;
+  --mes-role-admin-fg: #6b4b86;
+
+  /* Skeleton shimmer */
+  --mes-skeleton: linear-gradient(90deg, #eef2f7, #e2e8f0, #eef2f7);
+
+  /* Quiet button states (secondary chips) - deliberately stronger than
+     adjacent surfaces so the hover step is obvious */
+  --mes-btn-hover-bg: #e9eef3;
+  --mes-btn-active-bg: #dfe6ee;
 
   /* Layout metrics */
   --mes-header-height: 56px;
@@ -72,4 +87,55 @@
   --mes-shadow-popup: 0 12px 28px -14px rgb(16 29 42 / 40%);
 
   --mes-transition: 120ms ease;
+}
+
+/* Dark theme - toggled at runtime by adding .mes-dark to <html>.
+   The dark chrome of the top bar and login sidebar is theme-independent,
+   so --mes-nav-* stays untouched. */
+.mes-dark {
+  --mes-canvas: #141c24;
+  --mes-surface: #1b242e;
+  --mes-surface-sunken: #1f2933;
+  --mes-surface-header: #1a232c;
+  --mes-surface-hover: #222d38;
+
+  --mes-border: #2c3a49;
+  --mes-border-strong: #3c4c5e;
+  --mes-border-soft: #26313c;
+
+  --mes-text: #dbe4ec;
+  --mes-text-strong: #f2f6fa;
+  --mes-text-muted: #94a3b1;
+  --mes-text-faint: #64748b;
+
+  /* Accent lifted one step for contrast on dark canvas */
+  --mes-accent: #3f81b7;
+  --mes-accent-hover: #4a8ec4;
+  --mes-accent-soft: #22394e;
+  --mes-accent-border: #2f4a64;
+
+  --mes-ok: #4ba579;
+  --mes-ok-bg: #1d3229;
+  --mes-ok-border: #2f5143;
+  --mes-warn: #d69a3e;
+  --mes-warn-bg: #3a2c14;
+  --mes-warn-border: #5d4720;
+  --mes-alarm: #e06565;
+  --mes-alarm-bg: #3a2426;
+  --mes-alarm-border: #5f3438;
+  --mes-idle: #a3b1bf;
+  --mes-idle-bg: #26333f;
+  --mes-idle-border: #3a4959;
+
+  --mes-role-supervisor-bg: #213026;
+  --mes-role-supervisor-fg: #7fb98a;
+  --mes-role-admin-bg: #2c2536;
+  --mes-role-admin-fg: #b392d1;
+
+  --mes-skeleton: linear-gradient(90deg, #242f3a, #2f3b47, #242f3a);
+
+  --mes-btn-hover-bg: #23303c;
+  --mes-btn-active-bg: #1f2a34;
+
+  --mes-shadow-card: 0 1px 2px rgb(0 0 0 / 22%);
 }

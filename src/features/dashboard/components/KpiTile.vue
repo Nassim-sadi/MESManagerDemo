@@ -98,7 +98,7 @@ defineProps<{
   width: 4.5rem;
   height: 1.35rem;
   border-radius: 4px;
-  background: linear-gradient(90deg, #eef2f7, #e2e8f0, #eef2f7);
+  background: var(--mes-skeleton);
 }
 
 .kpi__hint {
