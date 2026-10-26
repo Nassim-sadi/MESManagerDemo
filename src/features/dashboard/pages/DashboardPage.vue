@@ -8,6 +8,7 @@ import ProgressBar from 'primevue/progressbar'
 import Tag from 'primevue/tag'
 import { useToast } from 'primevue/usetoast'
 import { useConfirm } from 'primevue/useconfirm'
+import { useI18n } from 'vue-i18n'
 import PageHeader from '@/components/shared/PageHeader.vue'
 import StatusTag from '@/components/shared/StatusTag.vue'
 import KpiTile from '../components/KpiTile.vue'
@@ -21,12 +22,14 @@ import type { DashboardSummary, KpiTile as KpiTileModel, ProductionLineRow } fro
 import type { Alarm } from '@/types/mes'
 import { ALARM_TONES, LINE_TONES, toneOf } from '@/utils/status'
 import { formatNumber, formatRelative, formatTime } from '@/utils/format'
+import { intlLocale } from '@/plugins/i18n'
 import { useAlarmsStore } from '@/stores/alarms.store'
 
 const router = useRouter()
 const toast = useToast()
 const confirm = useConfirm()
 const alarmStore = useAlarmsStore()
+const { t } = useI18n()
 
 const summary = ref<DashboardSummary | null>(null)
 const lineRows = ref<ProductionLineRow[]>([])
@@ -78,42 +81,42 @@ const tiles = computed<KpiTileModel[]>(() => {
   return [
     {
       key: 'active-orders',
-      label: 'Active work orders',
+      label: t('dashboard.kpiActiveOrders'),
       value: data ? formatNumber(data.activeOrders) : '—',
       icon: 'pi pi-list-check',
       tone: 'info',
-      hint: 'Queued, running, paused and held orders',
+      hint: t('dashboard.kpiActiveOrdersHint'),
     },
     {
       key: 'running-lines',
-      label: 'Running production lines',
+      label: t('dashboard.kpiRunningLines'),
       value: data ? `${data.runningLines} / ${data.totalLines}` : '—',
       icon: 'pi pi-th-large',
       tone: data && data.runningLines < data.totalLines ? 'warn' : 'ok',
-      hint: 'Lines currently producing',
+      hint: t('dashboard.kpiRunningLinesHint'),
     },
     {
       key: 'units-today',
-      label: 'Units produced today',
+      label: t('dashboard.kpiUnitsToday'),
       value: data ? formatNumber(data.unitsToday) : '—',
       icon: 'pi pi-box',
       tone: 'ok',
-      hint: 'All lines, current shift',
+      hint: t('dashboard.kpiUnitsTodayHint'),
     },
     {
       key: 'open-alarms',
-      label: 'Open alarms',
+      label: t('dashboard.kpiOpenAlarms'),
       value: data ? String(data.openAlarms) : '—',
       icon: 'pi pi-exclamation-triangle',
       tone: data && data.openAlarms > 0 ? 'alarm' : 'ok',
-      hint: 'Requires review by the shift lead',
+      hint: t('dashboard.kpiOpenAlarmsHint'),
     },
   ]
 })
 
 const updatedLabel = computed(() =>
   updatedAt.value
-    ? new Intl.DateTimeFormat('en-GB', {
+    ? new Intl.DateTimeFormat(intlLocale(), {
         hour: '2-digit',
         minute: '2-digit',
         second: '2-digit',
@@ -124,18 +127,18 @@ const updatedLabel = computed(() =>
 
 function onAcknowledge(alarm: Alarm): void {
   confirm.require({
-    header: 'Acknowledge alarm',
-    message: `Acknowledge ${alarm.code} on ${alarm.line}?`,
+    header: t('dashboard.acknowledgeAlarm'),
+    message: t('dashboard.acknowledgeQuestion', { code: alarm.code, line: alarm.line }),
     icon: 'pi pi-exclamation-triangle',
-    acceptLabel: 'Acknowledge',
-    rejectLabel: 'Cancel',
+    acceptLabel: t('dashboard.acknowledge'),
+    rejectLabel: t('dashboard.cancel'),
     accept: async () => {
       await acknowledgeAlarm(alarm.id)
       await loadAlarms()
       toast.add({
         severity: 'success',
-        summary: 'Alarm acknowledged',
-        detail: `${alarm.code} on ${alarm.line}`,
+        summary: t('dashboard.ackAlarmToast'),
+        detail: t('dashboard.ackAlarmToastDetail', { code: alarm.code, line: alarm.line }),
         life: 2500,
       })
     },
