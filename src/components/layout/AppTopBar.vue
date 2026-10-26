@@ -31,6 +31,45 @@ const langOptions: { code: AppLocale; label: string }[] = [
 const menu = ref<InstanceType<typeof Menu>>()
 const menuModel = ref<MenuItem[]>([])
 
+type ViewTransitionDocument = Document & {
+  startViewTransition?: (callback: () => void) => { ready: Promise<void> }
+}
+
+// Theme switch: flip the theme while a circle grows from the button that was
+// pressed, revealing the new theme instead of cross-fading.
+function handleThemeToggle(event: MouseEvent): void {
+  const button = event.currentTarget as HTMLElement
+  const rect = button.getBoundingClientRect()
+  const x = rect.left + rect.width / 2
+  const y = rect.top + rect.height / 2
+  const radius = Math.hypot(Math.max(x, window.innerWidth - x), Math.max(y, window.innerHeight - y))
+
+  const toggleTheme = () => app.toggleTheme()
+  const doc = document as ViewTransitionDocument
+
+  if (
+    typeof doc.startViewTransition !== 'function' ||
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  ) {
+    toggleTheme()
+    return
+  }
+
+  const transition = doc.startViewTransition(toggleTheme)
+  void transition.ready.then(() => {
+    document.documentElement.animate(
+      {
+        clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${radius}px at ${x}px ${y}px)`],
+      },
+      {
+        duration: 480,
+        easing: 'ease-out',
+        pseudoElement: '::view-transition-new(root)',
+      },
+    )
+  })
+}
+
 const drawerOpen = ref(false)
 const drawerIcon = computed(() => (drawerOpen.value ? 'pi pi-times' : 'pi pi-bars'))
 
@@ -155,7 +194,7 @@ function openGroup(event: Event, item: NavItem): void {
           :icon="app.theme === 'dark' ? 'pi pi-sun' : 'pi pi-moon'"
           :aria-label="app.theme === 'dark' ? t('topbar.switchToLight') : t('topbar.switchToDark')"
           class="topbar__theme-button"
-          @click="app.toggleTheme()"
+          @click="handleThemeToggle($event)"
         />
 
         <Button

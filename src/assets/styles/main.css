@@ -191,3 +191,22 @@ h4 {
 [dir='rtl'] .rtl-flip {
   transform: scaleX(-1);
 }
+
+/* --- Theme switch: expanding circle ------------------------------------- */
+
+/* The View Transitions API snapshots the page before and after the theme
+   change. We disable its default cross-fade and reveal the new snapshot with
+   a clip-path circle that grows from the theme button (see AppTopBar). */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+::view-transition-old(root) {
+  z-index: 1;
+}
+
+::view-transition-new(root) {
+  z-index: 2;
+}
