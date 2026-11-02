@@ -16,6 +16,8 @@ import type { LineAssignment, LineRecord } from '../types'
 import ImportAssignmentsDialog from '../components/ImportAssignmentsDialog.vue'
 import PrintDocument from '../components/PrintDocument.vue'
 import { formatNumber } from '@/utils/format'
+import { useAuthStore } from '@/stores/auth.store'
+import { PERMISSIONS } from '@/types/permissions'
 
 type PrintMode = 'lines' | 'assignments'
 
@@ -30,6 +32,10 @@ const linesTable = ref<InstanceType<typeof DataTable> | null>(null)
 const assignmentsTable = ref<InstanceType<typeof DataTable> | null>(null)
 
 const printMode = ref<PrintMode | null>(null)
+const auth = useAuthStore()
+const canManage = auth.hasPermission(PERMISSIONS.lineAssignmentsManage)
+const canExport = auth.hasPermission(PERMISSIONS.lineAssignmentsExport)
+const canPrint = auth.hasPermission(PERMISSIONS.lineAssignmentsPrint)
 
 const lineAssignments = computed(() =>
   selectedLine.value ? assignmentsOfLine(assignments.value, selectedLine.value.id) : [],
@@ -96,6 +102,7 @@ async function onImported(): Promise<void> {
     >
       <template #actions>
         <Button
+          v-if="canManage"
           label="Import assignments"
           icon="pi pi-upload"
           severity="primary"
@@ -119,6 +126,7 @@ async function onImported(): Promise<void> {
             <span class="mes-card__title">Production Lines</span>
             <div class="mes-card__actions">
               <Button
+                v-if="canExport"
                 label="Export CSV"
                 icon="pi pi-download"
                 severity="primary"
@@ -128,6 +136,7 @@ async function onImported(): Promise<void> {
                 @click="linesTable?.exportCSV()"
               />
               <Button
+                v-if="canPrint"
                 label="Print"
                 icon="pi pi-print"
                 severity="primary"
@@ -179,6 +188,7 @@ async function onImported(): Promise<void> {
             </span>
             <div class="mes-card__actions">
               <Button
+                v-if="canExport"
                 label="Export CSV"
                 icon="pi pi-download"
                 severity="primary"
@@ -188,6 +198,7 @@ async function onImported(): Promise<void> {
                 @click="assignmentsTable?.exportCSV()"
               />
               <Button
+                v-if="canPrint"
                 label="Print"
                 icon="pi pi-print"
                 severity="primary"

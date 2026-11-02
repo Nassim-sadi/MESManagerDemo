@@ -6,7 +6,8 @@ const routes: FeatureRoutes = [
     path: 'production',
     name: 'production',
     meta: {
-      title: 'Production', titleKey: 'production',
+      title: 'Production',
+      titleKey: 'production',
       icon: 'pi pi-building',
       order: 20,
       showInMenu: true,
@@ -18,7 +19,8 @@ const routes: FeatureRoutes = [
         name: 'production-lines',
         component: () => import('./pages/ProductionLinesPage.vue'),
         meta: {
-          title: 'Production Lines', titleKey: 'productionLines',
+          title: 'Production Lines',
+          titleKey: 'productionLines',
           icon: 'pi pi-th-large',
           order: 1,
           showInMenu: true,
@@ -29,8 +31,21 @@ const routes: FeatureRoutes = [
         name: 'production-line-detail',
         component: () => import('./pages/ProductionLineDetailPage.vue'),
         meta: {
-          title: 'Line detail', titleKey: 'lineDetail',
+          title: 'Line detail',
+          titleKey: 'lineDetail',
           showInMenu: false,
+        },
+      },
+      {
+        path: 'reports/order-production',
+        name: 'order-production-report',
+        component: () => import('../reports/pages/OrderProductionReportPage.vue'),
+        meta: {
+          title: 'Order Production Report',
+          titleKey: 'orderProductionReport',
+          icon: 'pi pi-chart-bar',
+          order: 3,
+          showInMenu: true,
         },
       },
     ],

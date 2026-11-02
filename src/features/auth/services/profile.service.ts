@@ -1,83 +1,45 @@
-import type { LoginRole, WorkstationProfile } from '../types'
+import { listRoles, listUsers } from '@/features/users/services/users.service'
+import type { WorkstationProfile } from '../types'
 
 const STORAGE_KEY = 'mes.profiles'
 
-/**
- * Demo workstation profiles. They are always offered so the login screen
- * never shows an empty state during a presentation.
- */
-const SEED_PROFILES: WorkstationProfile[] = [
-  { id: 'demo-operator', name: 'A. Fischer', role: 'operator', shift: 'Shift A', lastSeenAt: null },
-  {
-    id: 'demo-supervisor',
-    name: 'R. Singh',
-    role: 'supervisor',
-    shift: 'Shift A',
-    lastSeenAt: null,
-  },
-  { id: 'demo-admin', name: 'M. Keller', role: 'admin', shift: 'Shift A', lastSeenAt: null },
-]
-
-function readStored(): WorkstationProfile[] {
-  const raw = localStorage.getItem(STORAGE_KEY)
-  if (!raw) return []
+function readRecent(): Record<string, string> {
   try {
-    const parsed = JSON.parse(raw) as WorkstationProfile[]
-    return Array.isArray(parsed) ? parsed : []
+    const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '{}') as unknown
+    if (Array.isArray(parsed)) {
+      return Object.fromEntries(parsed.flatMap((profile) =>
+        profile && typeof profile.name === 'string' && typeof profile.lastSeenAt === 'string'
+          ? [[profile.name, profile.lastSeenAt]]
+          : [],
+      ))
+    }
+    return parsed && typeof parsed === 'object' ? parsed as Record<string, string> : {}
   } catch {
-    return []
+    localStorage.removeItem(STORAGE_KEY)
+    return {}
   }
 }
 
-function writeStored(profiles: WorkstationProfile[]): void {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(profiles))
+export async function listProfiles(): Promise<WorkstationProfile[]> {
+  const [users, roles, recent] = await Promise.all([listUsers(), listRoles(), Promise.resolve(readRecent())])
+  return users
+    .filter((user) => user.active)
+    .map((user) => ({
+      id: user.id,
+      userCode: user.userCode,
+      username: user.username,
+      name: user.name,
+      role: user.roleId,
+      roleName: roles.find((role) => role.id === user.roleId)?.name ?? user.roleId,
+      shift: user.shift,
+      avatarUrl: user.avatarUrl,
+      lastSeenAt: recent[user.id] ?? recent[user.name] ?? null,
+    }))
+    .sort((a, b) => (b.lastSeenAt ?? '').localeCompare(a.lastSeenAt ?? ''))
 }
 
-/**
- * Profiles of everyone who signed in on this workstation, plus the seeded
- * demo accounts. Only user name, role and the last sign in are stored -
- * never a password.
- */
-export function listProfiles(): WorkstationProfile[] {
-  const stored = readStored()
-  const known = new Set(stored.map((profile) => profile.name.toLowerCase()))
-
-  const seeded = SEED_PROFILES.filter((profile) => !known.has(profile.name.toLowerCase()))
-  const remembered = [...stored].sort((a, b) =>
-    (b.lastSeenAt ?? '').localeCompare(a.lastSeenAt ?? ''),
-  )
-
-  return [...remembered, ...seeded]
-}
-
-export function rememberProfile(profile: {
-  name: string
-  role: LoginRole
-  shift: string
-}): WorkstationProfile {
-  const stored = readStored()
-  const entry: WorkstationProfile = {
-    id: `profile-${profile.name.toLowerCase().replace(/\s+/g, '-')}`,
-    name: profile.name,
-    role: profile.role,
-    shift: profile.shift,
-    lastSeenAt: new Date().toISOString(),
-  }
-
-  const index = stored.findIndex(
-    (candidate) => candidate.name.toLowerCase() === profile.name.toLowerCase(),
-  )
-
-  if (index >= 0) {
-    stored[index] = entry
-  } else {
-    stored.push(entry)
-  }
-
-  writeStored(stored)
-  return entry
-}
-
-export function removeProfile(id: string): void {
-  writeStored(readStored().filter((profile) => profile.id !== id))
+export function rememberProfile(userId: string): void {
+  const recent = readRecent()
+  recent[userId] = new Date().toISOString()
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(recent))
 }

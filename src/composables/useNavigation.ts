@@ -22,9 +22,12 @@ export function useNavigation() {
     const isAllowed = (item: NavItem): boolean =>
       !item.permissions?.length || auth.hasEveryPermission(item.permissions)
 
-    return tree
-      .filter(isAllowed)
-      .map((item) => ({ ...item, children: item.children.filter(isAllowed) }))
+    return tree.flatMap((item) => {
+      const children = item.children.filter(isAllowed)
+      return isAllowed(item) || children.length
+        ? [{ ...item, children }]
+        : []
+    })
   })
 
   return { items }

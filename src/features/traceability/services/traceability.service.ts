@@ -1,11 +1,13 @@
 import { buildTraveler, mockData } from '@/services/mock/data'
 import { delay, query as applyQuery } from '@/services/mock/support'
+import { emptyPage, hasSeededFactoryData } from '@/services/mock/access'
 import type { PageQuery, PageResult } from '@/types/api'
 import type { SerialUnit } from '@/types/mes'
 import type { ProductHistoryRow, TraceabilityResult } from '../types'
 
 export async function searchSerial(sn: string): Promise<TraceabilityResult | null> {
   await delay(220, 520)
+  if (!hasSeededFactoryData()) return null
 
   const term = sn.trim().toUpperCase()
   if (!term) return null
@@ -38,6 +40,7 @@ export async function searchSerial(sn: string): Promise<TraceabilityResult | nul
 
 export async function fetchSerialUnits(params: PageQuery): Promise<PageResult<SerialUnit>> {
   await delay(160, 340)
+  if (!hasSeededFactoryData()) return emptyPage()
   return applyQuery(mockData.serialUnits, params)
 }
 
@@ -49,6 +52,7 @@ export async function fetchProductHistory(
   params: PageQuery,
 ): Promise<PageResult<ProductHistoryRow>> {
   await delay(180, 360)
+  if (!hasSeededFactoryData()) return emptyPage()
 
   const grouped = new Map<string, { row: ProductHistoryRow; lines: Set<string> }>()
 

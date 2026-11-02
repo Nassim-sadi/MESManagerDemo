@@ -1,4 +1,5 @@
 import { delay } from '@/services/mock/support'
+import { hasSeededFactoryData } from '@/services/mock/access'
 import type { ImportResult, LineAssignment, LineRecord } from '../types'
 
 /**
@@ -100,12 +101,12 @@ let assignmentStore: LineAssignment[] = [...ASSIGNMENTS]
 
 export async function fetchLines(): Promise<LineRecord[]> {
   await delay(120, 260)
-  return [...LINES]
+  return hasSeededFactoryData() ? [...LINES] : []
 }
 
 export async function fetchAssignments(): Promise<LineAssignment[]> {
   await delay(120, 260)
-  return [...assignmentStore]
+  return hasSeededFactoryData() ? [...assignmentStore] : []
 }
 
 export function assignmentsOfLine(assignments: LineAssignment[], lineId: string): LineAssignment[] {
@@ -118,6 +119,7 @@ export function assignmentsOfLine(assignments: LineAssignment[], lineId: string)
  */
 export async function importAssignments(rows: ImportedRowInput[]): Promise<ImportResult> {
   await delay(220, 420)
+  if (!hasSeededFactoryData()) throw new Error('No demo records are available for this factory.')
 
   let nextId = assignmentStore.length + 1
   const imported = rows.length

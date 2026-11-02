@@ -57,6 +57,7 @@
     "workOrderDetail": "تفاصيل أمر التشغيل",
     "production": "الإنتاج",
     "productionLines": "خطوط الإنتاج",
+    "orderProductionReport": "تقرير إنتاج الأوامر",
     "lineDetail": "تفاصيل الخط",
     "inventory": "المخزون",
     "stockOverview": "نظرة عامة على المخزون",
@@ -69,7 +70,10 @@
     "serialSearch": "البحث برقم المسلسل",
     "productHistory": "سجل المنتج",
     "lineAssignments": "توزيع الخطوط",
+    "printBarcode": "الطباعة والباركود",
     "settings": "الإعدادات",
+    "usersManagement": "إدارة المستخدمين",
+    "rolesPermissions": "الأدوار والصلاحيات",
     "signIn": "تسجيل الدخول",
     "notFound": "الصفحة غير موجودة"
   },

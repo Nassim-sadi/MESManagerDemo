@@ -1,11 +1,13 @@
 import { buildTraveler, mockData } from '@/services/mock/data'
 import { delay, query as applyQuery } from '@/services/mock/support'
+import { emptyPage, hasSeededFactoryData } from '@/services/mock/access'
 import type { PageResult } from '@/types/api'
 import type { MaterialLot, TravelerStep, WorkOrder } from '@/types/mes'
 import type { CreateWorkOrderPayload, WorkOrderQuery } from '../types'
 
 export async function fetchWorkOrders(params: WorkOrderQuery): Promise<PageResult<WorkOrder>> {
   await delay(180, 380)
+  if (!hasSeededFactoryData()) return emptyPage()
 
   const { filters } = params
   const term = filters.search.trim().toLowerCase()
@@ -29,16 +31,17 @@ export async function fetchWorkOrders(params: WorkOrderQuery): Promise<PageResul
 
 export async function fetchWorkOrder(id: string): Promise<WorkOrder | null> {
   await delay(140, 300)
-  return mockData.workOrders.find((order) => order.id === id) ?? null
+  return hasSeededFactoryData() ? mockData.workOrders.find((order) => order.id === id) ?? null : null
 }
 
 export async function fetchWorkOrderLines(): Promise<string[]> {
   await delay(80, 160)
-  return mockData.lines.map((line) => line.id)
+  return hasSeededFactoryData() ? mockData.lines.map((line) => line.id) : []
 }
 
 export async function createWorkOrder(payload: CreateWorkOrderPayload): Promise<WorkOrder> {
   await delay(300, 600)
+  if (!hasSeededFactoryData()) throw new Error('No demo records are available for this factory.')
 
   const order: WorkOrder = {
     id: `WO-26${String(700 + mockData.workOrders.length).padStart(3, '0')}`,
@@ -65,6 +68,7 @@ export async function setWorkOrderStatus(
   status: WorkOrder['status'],
 ): Promise<WorkOrder | null> {
   await delay(200, 420)
+  if (!hasSeededFactoryData()) return null
   const order = mockData.workOrders.find((entry) => entry.id === id)
   if (!order) return null
   order.status = status
@@ -76,6 +80,7 @@ export async function setWorkOrderStatus(
 
 export async function fetchWorkOrderOperations(id: string): Promise<TravelerStep[]> {
   await delay(140, 300)
+  if (!hasSeededFactoryData()) return []
   const unit = mockData.serialUnits.find((serial) => serial.workOrderId === id)
   const reference = unit ?? {
     sn: id,
@@ -92,6 +97,7 @@ export async function fetchWorkOrderOperations(id: string): Promise<TravelerStep
 
 export async function fetchWorkOrderLots(id: string): Promise<MaterialLot[]> {
   await delay(120, 260)
+  if (!hasSeededFactoryData()) return []
   const unit = mockData.serialUnits.find((serial) => serial.workOrderId === id)
   if (unit) return unit.lots
   return [

@@ -24,11 +24,14 @@ import { ALARM_TONES, LINE_TONES, toneOf } from '@/utils/status'
 import { formatNumber, formatRelative, formatTime } from '@/utils/format'
 import { intlLocale } from '@/plugins/i18n'
 import { useAlarmsStore } from '@/stores/alarms.store'
+import { useAuthStore } from '@/stores/auth.store'
+import { PERMISSIONS } from '@/types/permissions'
 
 const router = useRouter()
 const toast = useToast()
 const confirm = useConfirm()
 const alarmStore = useAlarmsStore()
+const canAcknowledge = useAuthStore().hasPermission(PERMISSIONS.alarmsAcknowledge)
 const { t } = useI18n()
 
 const summary = ref<DashboardSummary | null>(null)
@@ -276,7 +279,7 @@ function onAcknowledge(alarm: Alarm): void {
         <Column style="width: 9rem">
           <template #body="{ data }">
             <Button
-              v-if="!data.acknowledged"
+              v-if="canAcknowledge && !data.acknowledged"
               label="Acknowledge"
               size="small"
               severity="secondary"

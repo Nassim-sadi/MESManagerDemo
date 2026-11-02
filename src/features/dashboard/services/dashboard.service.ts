@@ -1,5 +1,6 @@
 import { mockData } from '@/services/mock/data'
 import { delay, round } from '@/services/mock/support'
+import { hasSeededFactoryData } from '@/services/mock/access'
 import type { Alarm, ProductionLine } from '@/types/mes'
 import type { DashboardSummary, ProductionLineRow } from '../types'
 
@@ -9,6 +10,7 @@ import type { DashboardSummary, ProductionLineRow } from '../types'
  */
 export async function fetchSummary(): Promise<DashboardSummary> {
   await delay(140, 320)
+  if (!hasSeededFactoryData()) return { activeOrders: 0, runningLines: 0, totalLines: 0, openAlarms: 0, unitsToday: 0 }
 
   const active = mockData.workOrders.filter((order) =>
     ['Running', 'Queued', 'Paused', 'Hold'].includes(order.status),
@@ -26,7 +28,7 @@ export async function fetchSummary(): Promise<DashboardSummary> {
 
 export async function fetchLineStatus(): Promise<ProductionLine[]> {
   await delay(120, 280)
-  return mockData.lines
+  return hasSeededFactoryData() ? mockData.lines : []
 }
 
 /**
@@ -35,6 +37,7 @@ export async function fetchLineStatus(): Promise<ProductionLine[]> {
  */
 export async function fetchLineOverview(): Promise<ProductionLineRow[]> {
   await delay(160, 340)
+  if (!hasSeededFactoryData()) return []
 
   return mockData.lines.map((line) => {
     const orders = mockData.workOrders.filter(
@@ -59,6 +62,7 @@ export async function fetchLineOverview(): Promise<ProductionLineRow[]> {
 
 export async function fetchAlarms(): Promise<Alarm[]> {
   await delay(100, 260)
+  if (!hasSeededFactoryData()) return []
   return [...mockData.alarms].sort(
     (a, b) => new Date(b.raisedAt).getTime() - new Date(a.raisedAt).getTime(),
   )
@@ -66,6 +70,7 @@ export async function fetchAlarms(): Promise<Alarm[]> {
 
 export async function acknowledgeAlarm(id: string): Promise<Alarm | null> {
   await delay(150, 320)
+  if (!hasSeededFactoryData()) return null
   const alarm = mockData.alarms.find((entry) => entry.id === id)
   if (!alarm) return null
   alarm.acknowledged = true

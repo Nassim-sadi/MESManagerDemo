@@ -1,29 +1,37 @@
-export type LoginRole = 'operator' | 'supervisor' | 'admin'
+export type LoginRole = string
 
 export interface LoginPayload {
   username: string
   password: string
-  role: LoginRole
+  userId?: string
 }
 
 export interface LoginResult {
   token: string
   user: {
     id: string
+    userCode: string
     name: string
     role: LoginRole
+    roleName: string
     permissions: string[]
     plant: string
+    factoryCode: string
     shift: string
+    warehouseCodes: string[]
+    avatarUrl: string
   }
 }
 
-/** A workstation profile offered on the login screen. */
+/** An enabled managed account offered on this workstation's login screen. */
 export interface WorkstationProfile {
   id: string
+  userCode: string
+  username: string
   name: string
   role: LoginRole
+  roleName: string
   shift: string
-  /** ISO timestamp of the last successful sign in, null when never used. */
+  avatarUrl: string
   lastSeenAt: string | null
 }

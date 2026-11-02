@@ -32,7 +32,7 @@ const router = useRouter()
 const toast = useToast()
 const auth = useAuthStore()
 
-const canEdit = auth.hasPermission(PERMISSIONS.workOrdersEdit)
+const canChangeStatus = auth.hasPermission(PERMISSIONS.workOrdersStatus) || auth.hasPermission(PERMISSIONS.workOrdersEdit)
 
 const order = ref<WorkOrder | null>(null)
 const operations = ref<TravelerStep[]>([])
@@ -100,14 +100,14 @@ async function changeStatus(status: WorkOrder['status']): Promise<void> {
           @click="router.push({ name: 'work-orders-list' })"
         />
         <Button
-          v-if="canEdit && order?.status === 'Queued'"
+          v-if="canChangeStatus && order?.status === 'Queued'"
           label="Start"
           icon="pi pi-play"
           size="small"
           @click="changeStatus('Running')"
         />
         <Button
-          v-if="canEdit && order?.status === 'Running'"
+          v-if="canChangeStatus && order?.status === 'Running'"
           label="Pause"
           icon="pi pi-pause"
           size="small"
@@ -115,7 +115,7 @@ async function changeStatus(status: WorkOrder['status']): Promise<void> {
           @click="changeStatus('Paused')"
         />
         <Button
-          v-if="canEdit && order?.status !== 'Completed'"
+          v-if="canChangeStatus && order?.status !== 'Completed'"
           label="Complete"
           icon="pi pi-check"
           size="small"

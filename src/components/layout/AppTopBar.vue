@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
@@ -15,17 +15,20 @@ import { useAlarmsStore } from '@/stores/alarms.store'
 import { useNavigation } from '@/composables/useNavigation'
 import { intlLocale, type AppLocale } from '@/plugins/i18n'
 import type { NavItem } from '@/router/navigation'
+import { FACTORY_OPTIONS, SHIFT_OPTIONS } from '@/features/users/types'
+import { useAuthStore } from '@/stores/auth.store'
 
 const router = useRouter()
 const route = useRoute()
 const app = useAppStore()
+const auth = useAuthStore()
 const alarmStore = useAlarmsStore()
 const { t } = useI18n()
 const { items } = useNavigation()
 
 const langOptions: { code: AppLocale; label: string }[] = [
-  { code: 'en', label: 'EN' },
-  { code: 'ar', label: 'العربية' },
+  { code: 'en', label: 'English' },
+  { code: 'ar', label: 'Arabic' },
 ]
 
 const menu = ref<InstanceType<typeof Menu>>()
@@ -81,8 +84,12 @@ watch(
   },
 )
 
-const plants = ['Plant 04 - Bratislava', 'Plant 07 - Linz', 'Plant 11 - Debrecen']
-const shifts = ['Shift A', 'Shift B', 'Shift C']
+const plants = computed(() =>
+  FACTORY_OPTIONS.filter((factory) => factory.code === auth.user?.factoryCode).map(
+    (factory) => factory.name,
+  ),
+)
+const shifts = SHIFT_OPTIONS
 
 const now = ref(new Date())
 let timer: number | undefined
@@ -116,9 +123,14 @@ function openGroup(event: Event, item: NavItem): void {
   menuModel.value = item.children.map((child) => ({
     label: child.label,
     icon: child.icon,
+    class: isMenuItemActive(child) ? 'topbar-menu-item--active' : undefined,
     command: () => router.push(child.to),
   }))
   menu.value?.toggle(event)
+}
+
+function isMenuItemActive(item: NavItem): boolean {
+  return route.path === item.to || route.path.startsWith(`${item.to}/`)
 }
 </script>
 
@@ -176,17 +188,6 @@ function openGroup(event: Event, item: NavItem): void {
       <div class="topbar__right">
         <span class="topbar__clock">{{ clock() }}</span>
 
-        <Select
-          :model-value="app.lang"
-          :options="langOptions"
-          option-label="label"
-          option-value="code"
-          size="small"
-          class="topbar__select topbar__lang"
-          :aria-label="t('topbar.language')"
-          @update:model-value="app.setLang"
-        />
-
         <Button
           text
           severity="secondary"
@@ -213,7 +214,7 @@ function openGroup(event: Event, item: NavItem): void {
           </template>
         </Button>
 
-        <UserMenu />
+        <UserMenu :language-options="langOptions" />
       </div>
     </div>
 
@@ -227,6 +228,7 @@ function openGroup(event: Event, item: NavItem): void {
         <Select
           v-model="app.plant"
           :options="plants"
+          disabled
           size="small"
           class="topbar__select"
           :aria-label="t('common.plant')"
@@ -279,6 +281,7 @@ function openGroup(event: Event, item: NavItem): void {
         <Select
           v-model="app.plant"
           :options="plants"
+          disabled
           size="small"
           class="topbar__select"
           :aria-label="t('common.plant')"
@@ -293,7 +296,14 @@ function openGroup(event: Event, item: NavItem): void {
       </div>
     </div>
 
-    <Menu ref="menu" :model="menuModel" :popup="true" />
+    <Menu ref="menu" :model="menuModel" :popup="true">
+      <template #item="{ item, props }">
+        <a v-bind="props.action" :class="item.class">
+          <span v-if="item.icon" :class="item.icon" />
+          <span>{{ item.label }}</span>
+        </a>
+      </template>
+    </Menu>
   </header>
 </template>
 
@@ -368,6 +378,8 @@ function openGroup(event: Event, item: NavItem): void {
 .topbar__nav {
   display: flex;
   align-items: center;
+  flex: 1 1 auto;
+  min-width: 0;
   gap: 0.1rem;
   height: 100%;
   overflow-x: auto;
@@ -419,6 +431,7 @@ function openGroup(event: Event, item: NavItem): void {
 .topbar__right {
   display: flex;
   align-items: center;
+  flex: 0 0 auto;
   gap: 0.5rem;
   margin-left: auto;
 }
@@ -496,14 +509,6 @@ function openGroup(event: Event, item: NavItem): void {
   min-width: 8rem;
 }
 
-.topbar__lang {
-  min-width: 5.5rem;
-}
-
-.topbar__lang :deep(.p-select-label) {
-  justify-content: flex-end;
-}
-
 .topbar__select--shift {
   min-width: 6rem;
 }
@@ -536,6 +541,8 @@ function openGroup(event: Event, item: NavItem): void {
 
 .topbar__drawer {
   display: none;
+  max-height: calc(100dvh - var(--mes-header-height));
+  overflow-y: auto;
 }
 
 .topbar__drawer-nav {
@@ -594,6 +601,7 @@ function openGroup(event: Event, item: NavItem): void {
 
 .topbar__drawer-context {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.5rem;
   margin-top: 0.4rem;
   padding: 0.5rem 0.75rem 0.85rem;
@@ -602,7 +610,7 @@ function openGroup(event: Event, item: NavItem): void {
 
 .topbar__drawer-context .topbar__select {
   flex: 1 1 0;
-  min-width: 0;
+  min-width: 7rem;
 }
 
 /* --- Narrow workstations and tablet ------------------------------------- */
@@ -626,24 +634,13 @@ function openGroup(event: Event, item: NavItem): void {
   }
 }
 
-/* Tablet: keep the context row, drop the breadcrumb */
-@media (max-width: 1180px) {
-  .topbar__breadcrumb {
-    display: none;
-  }
-
-  .topbar__context {
-    margin-left: auto;
-  }
-}
-
-/* Mobile: hamburger + drawer replaces the horizontal nav */
-@media (max-width: 768px) {
+/* Crowded tablet / laptop widths use the scrollable drawer navigation. */
+@media (max-width: 1280px) {
   .topbar__burger {
     display: inline-flex;
   }
 
-  .topbar__brand-text,
+  .topbar__tagline,
   .topbar__clock,
   .topbar__nav,
   .topbar__level2 {
@@ -681,5 +678,19 @@ function openGroup(event: Event, item: NavItem): void {
     background: rgba(255 255 255 / 10%);
     color: #f2f6fa;
   }
+}
+
+@media (max-width: 768px) {
+  .topbar__brand-text {
+    display: none;
+  }
+}
+</style>
+
+<style>
+.p-menu .p-menu-item-link.topbar-menu-item--active {
+  background: var(--mes-accent-soft);
+  color: var(--mes-accent);
+  font-weight: 650;
 }
 </style>

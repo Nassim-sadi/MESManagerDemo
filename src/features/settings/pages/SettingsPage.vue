@@ -1,23 +1,31 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import InputNumber from 'primevue/inputnumber'
 import Select from 'primevue/select'
 import InputText from 'primevue/inputtext'
 import Button from 'primevue/button'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
-import Tag from 'primevue/tag'
 import ToggleSwitch from 'primevue/toggleswitch'
 import { useToast } from 'primevue/usetoast'
 import { useI18n } from 'vue-i18n'
 import PageHeader from '@/components/shared/PageHeader.vue'
 import { useAppStore } from '@/stores/app.store'
-import { ROLE_PERMISSIONS } from '@/stores/auth.store'
-import type { UserRole } from '@/stores/auth.store'
+import { useAuthStore } from '@/stores/auth.store'
+import { PERMISSIONS } from '@/types/permissions'
+import { listRoles } from '@/features/users/services/users.service'
+import type { ManagedRole } from '@/features/users/types'
 
 const toast = useToast()
 const { t } = useI18n()
 const app = useAppStore()
+const auth = useAuthStore()
+const roles = ref<ManagedRole[]>([])
+const canEditSettings = auth.hasPermission(PERMISSIONS.settingsEdit)
+
+onMounted(async () => {
+  roles.value = await listRoles()
+})
 
 const isDark = computed(() => app.theme === 'dark')
 
@@ -35,13 +43,6 @@ const refreshInterval = ref(5)
 const shiftOptions = ['3 x 8 hours', '2 x 12 hours', '4 x 6 hours']
 const timezoneOptions = ['Europe/Bratislava', 'Europe/Vienna', 'Europe/Budapest', 'UTC']
 
-const demoUsers = [
-  { name: 'operator', role: 'operator' as UserRole, shift: 'Shift A' },
-  { name: 'shift.lead', role: 'supervisor' as UserRole, shift: 'Shift A' },
-  { name: 'maintenance', role: 'supervisor' as UserRole, shift: 'Shift B' },
-  { name: 'admin', role: 'admin' as UserRole, shift: 'All' },
-]
-
 function save(): void {
   toast.add({
     severity: 'success',
@@ -51,9 +52,7 @@ function save(): void {
   })
 }
 
-function permissionCount(role: string): number {
-  return ROLE_PERMISSIONS[role as UserRole]?.length ?? 0
-}
+function permissionCount(role: ManagedRole): number { return role.permissions.length }
 </script>
 
 <template>
@@ -102,31 +101,21 @@ function permissionCount(role: string): number {
           </label>
 
           <div class="form__actions">
-            <Button :label="t('settings.save')" icon="pi pi-check" @click="save" />
+            <Button v-if="canEditSettings" :label="t('settings.save')" icon="pi pi-check" @click="save" />
           </div>
         </div>
       </section>
 
       <section class="mes-card">
         <header class="mes-card__header">
-          <span class="mes-card__title">{{ t('settings.demoUsers') }}</span>
-          <span class="mes-eyebrow">{{ t('settings.demoUsersSub') }}</span>
+          <span class="mes-card__title">Roles & permissions</span>
+          <span class="mes-eyebrow">Configured module and action access</span>
         </header>
-        <DataTable :value="demoUsers" size="small" striped-rows>
-          <Column field="name" :header="t('settings.demoUsersUser')" style="width: 9rem">
-            <template #body="{ data }">
-              <span class="mes-mono">{{ data.name }}</span>
-            </template>
-          </Column>
-          <Column field="role" :header="t('settings.demoUsersRole')" style="width: 9rem">
-            <template #body="{ data }">
-              <Tag :value="t(`auth.roles.${data.role}`)" severity="secondary" />
-            </template>
-          </Column>
-          <Column field="shift" :header="t('common.shift')" style="width: 8rem" />
+        <DataTable :value="roles" size="small" striped-rows>
+          <Column field="name" header="Role" style="width: 12rem" />
           <Column :header="t('settings.permissions')" style="width: 8rem">
             <template #body="{ data }">
-              <span class="mes-mono">{{ permissionCount(data.role) }}</span>
+              <span class="mes-mono">{{ permissionCount(data) }}</span>
             </template>
           </Column>
         </DataTable>

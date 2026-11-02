@@ -1,12 +1,10 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 import Password from 'primevue/password'
 import InputText from 'primevue/inputtext'
-import Select from 'primevue/select'
 import Button from 'primevue/button'
 import Message from 'primevue/message'
 import { useI18n } from 'vue-i18n'
-import type { LoginRole } from '../types'
 
 const props = defineProps<{
   name: string
@@ -16,7 +14,6 @@ const props = defineProps<{
   loading?: boolean
   manual?: boolean
   username?: string
-  manualRole?: LoginRole
 }>()
 
 const { t } = useI18n()
@@ -25,16 +22,9 @@ const emit = defineEmits<{
   submit: [password: string]
   back: []
   'update:username': [value: string]
-  'update:manualRole': [value: LoginRole]
 }>()
 
 const password = ref('')
-
-const roles = computed<{ label: string; value: LoginRole }[]>(() => [
-  { label: t('auth.roles.operator'), value: 'operator' },
-  { label: t('auth.roles.supervisor'), value: 'supervisor' },
-  { label: t('auth.roles.admin'), value: 'admin' },
-])
 
 function onSubmit(): void {
   if (!password.value) return
@@ -68,18 +58,6 @@ function initials(name: string): string {
             :placeholder="t('auth.password.usernamePlaceholder')"
             fluid
             @update:model-value="emit('update:username', $event ?? '')"
-          />
-        </label>
-
-        <label class="step__field">
-          <span class="step__label">{{ t('auth.password.role') }}</span>
-          <Select
-            :model-value="props.manualRole"
-            :options="roles"
-            option-label="label"
-            option-value="value"
-            fluid
-            @update:model-value="emit('update:manualRole', $event as LoginRole)"
           />
         </label>
       </div>

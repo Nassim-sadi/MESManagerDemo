@@ -34,10 +34,11 @@ function initials(name: string): string {
         class="profile"
         @click="emit('select', profile)"
       >
-        <span class="profile__avatar" :data-role="profile.role">{{ initials(profile.name) }}</span>
+        <img v-if="profile.avatarUrl" class="profile__avatar profile__avatar--image" :src="profile.avatarUrl" :alt="`${profile.name} profile`" />
+        <span v-else class="profile__avatar" :data-role="profile.role">{{ initials(profile.name) }}</span>
         <span class="profile__text">
           <span class="profile__name">{{ profile.name }}</span>
-          <span class="profile__role">{{ t(`auth.roles.${profile.role}`) }}</span>
+          <span class="profile__role">{{ profile.roleName }}</span>
           <span class="profile__seen">
             {{
               profile.lastSeenAt
@@ -108,6 +109,8 @@ function initials(name: string): string {
   font-weight: 700;
   letter-spacing: 0.02em;
 }
+
+.profile__avatar--image { object-fit: cover; }
 
 .profile__avatar[data-role='supervisor'] {
   background: var(--mes-role-supervisor-bg);

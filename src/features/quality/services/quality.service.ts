@@ -1,5 +1,6 @@
 import { mockData } from '@/services/mock/data'
 import { delay, isoWithin, pick, query as applyQuery, randomInt } from '@/services/mock/support'
+import { emptyPage, hasSeededFactoryData } from '@/services/mock/access'
 import type { PageQuery, PageResult } from '@/types/api'
 import type { Inspection } from '@/types/mes'
 import type { InspectionFilters, NonConformance, QualityFilters } from '../types'
@@ -33,6 +34,7 @@ export async function fetchNonConformances(
   params: PageQuery & { filters: QualityFilters },
 ): Promise<PageResult<NonConformance>> {
   await delay(180, 380)
+  if (!hasSeededFactoryData()) return emptyPage()
 
   const { filters } = params
   const term = filters.search.trim().toLowerCase()
@@ -56,6 +58,7 @@ export async function fetchInspections(
   params: PageQuery & { filters: InspectionFilters },
 ): Promise<PageResult<Inspection>> {
   await delay(180, 360)
+  if (!hasSeededFactoryData()) return emptyPage()
 
   const { filters } = params
   const term = filters.search.trim().toLowerCase()

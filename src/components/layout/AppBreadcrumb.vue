@@ -35,9 +35,7 @@ const crumbs = computed(() => {
   <nav class="breadcrumb" :class="`breadcrumb--${props.variant}`" aria-label="Breadcrumb">
     <template v-for="(crumb, index) in crumbs" :key="crumb.to">
       <i v-if="index > 0" class="pi pi-angle-right breadcrumb__sep rtl-flip" />
-      <span
-        :class="['breadcrumb__item', { 'breadcrumb__item--current': index === crumbs.length - 1 }]"
-      >
+      <span :class="['breadcrumb__item', { 'breadcrumb__item--current': index === crumbs.length - 1 }]">
         {{ crumb.label }}
       </span>
     </template>

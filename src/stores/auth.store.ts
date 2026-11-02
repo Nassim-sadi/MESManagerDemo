@@ -1,16 +1,21 @@
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
-import { PERMISSIONS } from '@/types/permissions'
+import { ALL_PERMISSIONS, migratePermissions, PERMISSIONS } from '@/types/permissions'
 
-export type UserRole = 'operator' | 'supervisor' | 'admin'
+export type UserRole = string
 
 export interface AuthUser {
   id: string
+  userCode: string
   name: string
   role: UserRole
+  roleName: string
   permissions: string[]
   plant: string
+  factoryCode: string
   shift: string
+  warehouseCodes: string[]
+  avatarUrl: string
 }
 
 export const ROLE_PERMISSIONS: Record<UserRole, string[]> = {
@@ -22,26 +27,21 @@ export const ROLE_PERMISSIONS: Record<UserRole, string[]> = {
   ],
   supervisor: [
     PERMISSIONS.dashboardView,
+    PERMISSIONS.alarmsAcknowledge,
     PERMISSIONS.productionView,
     PERMISSIONS.workOrdersView,
-    PERMISSIONS.workOrdersEdit,
+    PERMISSIONS.workOrdersCreate,
+    PERMISSIONS.workOrdersStatus,
     PERMISSIONS.traceabilityView,
     PERMISSIONS.qualityView,
     PERMISSIONS.inventoryView,
     PERMISSIONS.reportsView,
+    PERMISSIONS.reportsRun,
+    PERMISSIONS.lineAssignmentsView,
+    PERMISSIONS.lineAssignmentsExport,
+    PERMISSIONS.lineAssignmentsPrint,
   ],
-  admin: [
-    PERMISSIONS.dashboardView,
-    PERMISSIONS.productionView,
-    PERMISSIONS.workOrdersView,
-    PERMISSIONS.workOrdersEdit,
-    PERMISSIONS.workOrdersDelete,
-    PERMISSIONS.traceabilityView,
-    PERMISSIONS.qualityView,
-    PERMISSIONS.inventoryView,
-    PERMISSIONS.reportsView,
-    PERMISSIONS.settingsView,
-  ],
+  admin: [...ALL_PERMISSIONS],
 }
 
 const TOKEN_KEY = 'mes.token'
@@ -52,13 +52,34 @@ export const useAuthStore = defineStore('auth', () => {
   const user = ref<AuthUser | null>(readStoredUser())
 
   const isAuthenticated = computed(() => Boolean(token.value && user.value))
-  const permissions = computed(() => user.value?.permissions ?? [])
+  const permissions = computed(() => {
+    const current = user.value
+    if (!current) return []
+    const currentPermissions = migratePermissions(current.permissions)
+    if (current.role === 'admin') {
+      return [...new Set([...currentPermissions, PERMISSIONS.usersManage, PERMISSIONS.rolesManage])]
+    }
+    return currentPermissions
+  })
 
   function readStoredUser(): AuthUser | null {
     const raw = localStorage.getItem(USER_KEY)
     if (!raw) return null
     try {
-      return JSON.parse(raw) as AuthUser
+      const stored = JSON.parse(raw) as Partial<AuthUser>
+      return {
+        id: stored.id ?? '',
+        userCode: stored.userCode ?? stored.name ?? '',
+        name: stored.name ?? '',
+        role: stored.role ?? 'operator',
+        roleName: stored.roleName ?? stored.role ?? 'Operator',
+        permissions: stored.permissions ?? [],
+        plant: stored.plant ?? 'Plant 04 - Bratislava',
+        factoryCode: stored.factoryCode ?? 'F04',
+        shift: stored.shift ?? 'Shift A',
+        warehouseCodes: stored.warehouseCodes ?? (stored.role === 'admin' ? ['WH-01', 'WH-02', 'WH-03'] : []),
+        avatarUrl: stored.avatarUrl ?? '',
+      }
     } catch {
       return null
     }
@@ -80,11 +101,11 @@ export const useAuthStore = defineStore('auth', () => {
 
   function hasEveryPermission(required: string[]): boolean {
     if (!required.length) return true
-    return required.every((permission) => permissions.value.includes(permission))
+    return required.every((permission) => permissions.value.some((code) => code === permission))
   }
 
   function hasPermission(permission: string): boolean {
-    return permissions.value.includes(permission)
+    return permissions.value.some((code) => code === permission)
   }
 
   return {

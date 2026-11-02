@@ -34,7 +34,8 @@ const toast = useToast()
 const confirm = useConfirm()
 const auth = useAuthStore()
 
-const canEdit = auth.hasPermission(PERMISSIONS.workOrdersEdit)
+const canCreate = auth.hasPermission(PERMISSIONS.workOrdersCreate) || auth.hasPermission(PERMISSIONS.workOrdersEdit)
+const canChangeStatus = auth.hasPermission(PERMISSIONS.workOrdersStatus) || auth.hasPermission(PERMISSIONS.workOrdersEdit)
 
 const filters = reactive<WorkOrderFilters>({
   search: '',
@@ -125,7 +126,7 @@ function changeStatus(order: WorkOrder, status: WorkOrder['status']): void {
     <PageHeader title="Work orders" subtitle="Production orders, quantities and line assignment">
       <template #actions>
         <Button
-          v-if="canEdit"
+          v-if="canCreate"
           icon="pi pi-plus"
           label="New work order"
           size="small"
@@ -277,7 +278,7 @@ function changeStatus(order: WorkOrder, status: WorkOrder['status']): void {
                 @click.stop="openDetail(data)"
               />
               <Button
-                v-if="canEdit && data.status === 'Queued'"
+                v-if="canChangeStatus && data.status === 'Queued'"
                 icon="pi pi-play"
                 severity="secondary"
                 text
@@ -286,7 +287,7 @@ function changeStatus(order: WorkOrder, status: WorkOrder['status']): void {
                 @click.stop="changeStatus(data, 'Running')"
               />
               <Button
-                v-if="canEdit && data.status === 'Running'"
+                v-if="canChangeStatus && data.status === 'Running'"
                 icon="pi pi-pause"
                 severity="secondary"
                 text

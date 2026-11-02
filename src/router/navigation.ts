@@ -39,7 +39,9 @@ function joinPath(base: string, path: string): string {
  *   the group with that route name
  */
 function navLabel(meta: AppRouteMeta): string {
-  return meta.titleKey ? i18n.global.t(meta.titleKey) : (meta.title ?? '')
+  if (!meta.titleKey) return meta.title ?? ''
+  const key = meta.titleKey.includes('.') ? meta.titleKey : `nav.${meta.titleKey}`
+  return i18n.global.te(key) ? i18n.global.t(key) : meta.title
 }
 
 function collect(record: RouteRecordRaw, basePath: string, out: NavEntry[]): void {
@@ -62,7 +64,7 @@ function collect(record: RouteRecordRaw, basePath: string, out: NavEntry[]): voi
     out.push({
       name: typeof record.name === 'string' ? record.name : undefined,
       item: {
-        label: meta.title,
+        label: navLabel(meta),
         titleKey: meta.titleKey ?? '',
         icon: meta.icon,
         to: fullPath,
@@ -81,7 +83,7 @@ function collect(record: RouteRecordRaw, basePath: string, out: NavEntry[]): voi
     name: typeof record.name === 'string' ? record.name : undefined,
     group: meta.group,
     item: {
-      label: meta.title,
+      label: navLabel(meta),
       titleKey: meta.titleKey ?? '',
       icon: meta.icon,
       to: fullPath,

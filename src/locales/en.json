@@ -57,6 +57,7 @@
     "workOrderDetail": "Work order detail",
     "production": "Production",
     "productionLines": "Production Lines",
+    "orderProductionReport": "Order Production Report",
     "lineDetail": "Line detail",
     "inventory": "Inventory",
     "stockOverview": "Stock Overview",
@@ -69,7 +70,10 @@
     "serialSearch": "Serial Number Search",
     "productHistory": "Product History",
     "lineAssignments": "Line Assignments",
+    "printBarcode": "Print & Barcode",
     "settings": "Settings",
+    "usersManagement": "User management",
+    "rolesPermissions": "Roles & Permissions",
     "signIn": "Sign in",
     "notFound": "Page not found"
   },
@@ -193,5 +197,17 @@
     "Search": "Search",
     "No work orders found": "No work orders found",
     "Filters": "Filters"
+  },
+  "Users": {
+    "users": "Users",
+    "userName": "User name",
+    "usersManagement": "User Management",
+    "rolesPermissions": "Roles & Permissions",
+    "role": "Role",
+    "lastSignIn": "Last sign in",
+    "notUsedYet": "not used yet",
+    "search": "Search users",
+    "resetFilters": "Reset filters",
+    "No users found": "No users found"
   }
 }

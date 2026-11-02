@@ -10,8 +10,11 @@ import EmptyState from '@/components/shared/EmptyState.vue'
 import { fetchReports, runReport } from '../services/reports.service'
 import type { ReportDefinition } from '@/types/mes'
 import { formatRelative } from '@/utils/format'
+import { useAuthStore } from '@/stores/auth.store'
+import { PERMISSIONS } from '@/types/permissions'
 
 const toast = useToast()
+const canRunReports = useAuthStore().hasPermission(PERMISSIONS.reportsRun)
 
 const reports = ref<ReportDefinition[]>([])
 const loading = ref(true)
@@ -87,6 +90,7 @@ async function onRun(report: ReportDefinition): Promise<void> {
       <Column style="width: 5rem">
         <template #body="{ data }">
           <Button
+            v-if="canRunReports"
             label="Run"
             icon="pi pi-play"
             size="small"
