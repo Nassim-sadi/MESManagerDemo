@@ -230,32 +230,6 @@ const pieOptions = {
   },
 }
 
-const radarChartData = computed(() => ({
-  labels: [
-    'Productivity',
-    'QC Rate',
-    'Production Achievement',
-    'Quality Output',
-  ],
-  datasets: [{
-    label: 'Performance',
-    data: [
-      productivity.value,
-      totalQc.value,
-      totalPlan.value > 0
-        ? (totalActual.value / totalPlan.value) * 100
-        : 0,
-      totalQcQty.value > 0
-        ? ((totalQcQty.value - totalRepair.value) / totalQcQty.value) * 100
-        : 0,
-    ],
-    backgroundColor: 'rgba(37, 99, 235, 0.2)',
-    borderColor: '#2563eb',
-    pointBackgroundColor: '#2563eb',
-    borderWidth: 2,
-  }],
-}))
-
 
 </script>
 
