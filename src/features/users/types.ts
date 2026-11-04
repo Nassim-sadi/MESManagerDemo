@@ -33,6 +33,8 @@ export interface ManagedUser {
   avatarUrl: string
   shift: string
   warehouseCodes: string[]
+  passwordHash: string // seeded SHA-256 hex; empty = any password accepted (demo bypass)
+  mustChangePassword: boolean // true on first login after admin reset
 }
 
 export interface ManagedRole {
@@ -42,9 +44,9 @@ export interface ManagedRole {
 }
 
 export const FACTORY_OPTIONS: FactoryOption[] = [
-  { code: 'F04', name: 'Plant 04 - Bratislava' },
-  { code: 'F07', name: 'Plant 07 - Linz' },
-  { code: 'F11', name: 'Plant 11 - Debrecen' },
+  { code: 'F04', name: 'Central-warehouse' },
+  { code: 'F07', name: 'AC' },
+  { code: 'F11', name: 'Mobile' },
 ]
 
 export const DEPARTMENT_OPTIONS = [

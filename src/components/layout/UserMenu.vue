@@ -8,6 +8,8 @@ import Dialog from 'primevue/dialog'
 import { useAppStore } from '@/stores/app.store'
 import type { AppLocale } from '@/plugins/i18n'
 import { useAuthStore } from '@/stores/auth.store'
+import { PERMISSIONS } from '@/types/permissions'
+import ChangePasswordDialog from '@/features/auth/components/ChangePasswordDialog.vue'
 
 const props = defineProps<{
   languageOptions: { code: AppLocale; label: string }[]
@@ -19,6 +21,12 @@ const app = useAppStore()
 const { t } = useI18n()
 const menu = ref<InstanceType<typeof Menu>>()
 const languageVisible = ref(false)
+const passwordVisible = ref(false)
+
+/** Profile lives with user management when the account may open it. */
+const accountRouteName = computed(() =>
+  auth.hasPermission(PERMISSIONS.usersManage) ? 'users-management' : 'dashboard',
+)
 
 function selectLanguage(locale: AppLocale): void {
   app.setLang(locale)
@@ -39,6 +47,11 @@ const items = computed(() => [
         }),
         disabled: true,
       },
+      {
+        label: t('auth.menu.changePassword'),
+        icon: 'pi pi-key',
+        command: () => { passwordVisible.value = true },
+      },
     ],
   },
   {
@@ -47,12 +60,7 @@ const items = computed(() => [
       {
         label: t('auth.menu.profile'),
         icon: 'pi pi-user',
-        command: () => router.push({ name: 'settings' }),
-      },
-      {
-        label: t('auth.menu.preferences'),
-        icon: 'pi pi-sliders-h',
-        command: () => router.push({ name: 'settings' }),
+        command: () => router.push({ name: accountRouteName.value }),
       },
       {
         label: t('topbar.language'),
@@ -113,6 +121,8 @@ const initials = (auth.user?.name ?? 'OP')
   </button>
 
   <Menu ref="menu" :model="items" :popup="true" />
+
+  <ChangePasswordDialog v-model:visible="passwordVisible" mode="self" />
 
   <Dialog
     v-model:visible="languageVisible"

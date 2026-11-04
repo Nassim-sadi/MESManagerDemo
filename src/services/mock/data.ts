@@ -1,11 +1,8 @@
 import type {
-  Alarm,
-  AlarmSeverity,
   Inspection,
   LineStatus,
   MaterialMovement,
   ProductionLine,
-  ReportDefinition,
   SerialStatus,
   SerialUnit,
   Station,
@@ -62,7 +59,6 @@ const WORK_ORDER_STATUSES: WorkOrderStatus[] = [
   'Completed',
 ]
 const PRIORITIES: WorkOrderPriority[] = ['Low', 'Normal', 'Normal', 'Normal', 'High', 'Urgent']
-const ALARM_SEVERITIES: AlarmSeverity[] = ['Critical', 'Warning', 'Warning', 'Info']
 const SERIAL_STATUSES: SerialStatus[] = [
   'Passed',
   'Passed',
@@ -126,32 +122,6 @@ function buildWorkOrders(lines: ProductionLine[]): WorkOrder[] {
       dueAt: isoWithin(-randomInt(-96, 72)),
       startedAt: status === 'Queued' ? null : isoWithin(randomInt(2, 60)),
       operator: pick(OPERATORS),
-    }
-  })
-}
-
-function buildAlarms(lines: ProductionLine[]): Alarm[] {
-  const templates: { code: string; message: string }[] = [
-    { code: 'AL-1042', message: 'Spindle vibration above threshold' },
-    { code: 'AL-2210', message: 'Material starvation at infeed conveyor' },
-    { code: 'AL-3318', message: 'Torque verification failed' },
-    { code: 'AL-4471', message: 'Coolant level below minimum' },
-    { code: 'AL-5503', message: 'Vision inspection camera not responding' },
-    { code: 'AL-6120', message: 'Hydraulic pressure drop detected' },
-  ]
-
-  return Array.from({ length: 16 }, (_, index) => {
-    const line = lines[index % lines.length] ?? lines[0]!
-    const template = templates[index % templates.length]!
-
-    return {
-      id: `ALM-${String(9000 + index)}`,
-      raisedAt: isoWithin(randomInt(1, 40)),
-      line: line.id,
-      code: template.code,
-      message: template.message,
-      severity: pick(ALARM_SEVERITIES),
-      acknowledged: index > 2,
     }
   })
 }
@@ -328,72 +298,15 @@ function buildInspections(serialUnits: SerialUnit[]): Inspection[] {
   })
 }
 
-function buildReports(): ReportDefinition[] {
-  const catalogue: { name: string; category: string; description: string }[] = [
-    {
-      name: 'Daily production summary',
-      category: 'Production',
-      description: 'Units produced, scrap and downtime per line for one day.',
-    },
-    {
-      name: 'Work order status list',
-      category: 'Production',
-      description: 'Open work orders with progress, due date and line assignment.',
-    },
-    {
-      name: 'Shift handover summary',
-      category: 'Operations',
-      description: 'Open alarms, held orders and notes for the incoming shift.',
-    },
-    {
-      name: 'Serial number genealogy',
-      category: 'Traceability',
-      description: 'Routing history and material lots for produced serial numbers.',
-    },
-    {
-      name: 'Non-conformance analysis',
-      category: 'Quality',
-      description: 'Defects by category, line, severity and disposition.',
-    },
-    {
-      name: 'Stock on hand',
-      category: 'Inventory',
-      description: 'Material stock per warehouse including below-minimum items.',
-    },
-    {
-      name: 'OEE by line',
-      category: 'Operations',
-      description: 'Availability, performance and quality split per line and shift.',
-    },
-    {
-      name: 'Supplier incoming quality',
-      category: 'Quality',
-      description: 'Incoming inspection results per supplier and material group.',
-    },
-  ]
-
-  return catalogue.map((entry, index) => ({
-    id: `RPT-${String(100 + index)}`,
-    name: entry.name,
-    category: entry.category,
-    description: entry.description,
-    format: pick(['XLSX', 'CSV', 'PDF'] as const),
-    owner: pick(OPERATORS),
-    lastRunAt: isoWithin(randomInt(1, 96)),
-  }))
-}
-
 const stockItems = buildStock()
 const serialUnits = buildSerialUnits(workOrders)
 
 export const mockData = {
   lines,
   workOrders,
-  alarms: buildAlarms(lines),
   serialUnits,
   stations: buildStations(lines),
   stock: stockItems,
   movements: buildMovements(stockItems),
   inspections: buildInspections(serialUnits),
-  reports: buildReports(),
 }

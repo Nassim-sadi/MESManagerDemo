@@ -114,6 +114,18 @@
   transition: background var(--mes-transition);
 }
 
+/* Row hover is available on every table, not only screens that opt into
+   PrimeVue's rowHover prop. The app token follows the active theme. */
+.p-datatable .p-datatable-tbody > tr:not(.p-datatable-row-selected):hover {
+  background: var(--mes-surface-hover);
+}
+
+/* Striped tables paint odd rows with a dedicated rule; lift the hover
+   state above it so the feedback is consistent. */
+.p-datatable.p-datatable-striped .p-datatable-tbody > tr:not(.p-datatable-row-selected):hover {
+  background: var(--mes-surface-hover);
+}
+
 .p-datatable .p-datatable-tbody > tr.p-datatable-row-selected {
   background: var(--mes-accent-soft);
   color: var(--mes-text);

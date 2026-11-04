@@ -1,4 +1,4 @@
-import type { AlarmSeverity, LineStatus, SerialStatus, WorkOrderStatus } from '@/types/mes'
+import type { LineStatus, SerialStatus, WorkOrderStatus } from '@/types/mes'
 
 export type StatusTone = 'ok' | 'warn' | 'alarm' | 'idle' | 'info'
 
@@ -17,12 +17,6 @@ export const LINE_TONES: Record<LineStatus, StatusTone> = {
   Idle: 'idle',
   Down: 'alarm',
   Maintenance: 'info',
-}
-
-export const ALARM_TONES: Record<AlarmSeverity, StatusTone> = {
-  Critical: 'alarm',
-  Warning: 'warn',
-  Info: 'info',
 }
 
 export const SERIAL_TONES: Record<SerialStatus, StatusTone> = {

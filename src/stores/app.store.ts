@@ -8,13 +8,11 @@ export type ThemeMode = 'light' | 'dark'
 const THEME_KEY = 'mes.theme'
 
 export const useAppStore = defineStore('app', () => {
-  const plant = ref('Plant 04 - Bratislava')
+  const plant = ref('Central-warehouse')
   const shift = ref('Shift A')
   const lastSyncAt = ref<Date | null>(null)
 
-  const theme = ref<ThemeMode>(
-    localStorage.getItem(THEME_KEY) === 'dark' ? 'dark' : 'light',
-  )
+  const theme = ref<ThemeMode>(localStorage.getItem(THEME_KEY) === 'dark' ? 'dark' : 'light')
 
   function applyTheme(mode: ThemeMode): void {
     document.documentElement.classList.toggle('mes-dark', mode === 'dark')
@@ -30,9 +28,7 @@ export const useAppStore = defineStore('app', () => {
   // (main.ts applies it earlier to avoid a flash on first paint).
   applyTheme(theme.value)
 
-  const lang = ref<AppLocale>(
-    localStorage.getItem('mes.lang') === 'ar' ? 'ar' : 'en',
-  )
+  const lang = ref<AppLocale>(localStorage.getItem('mes.lang') === 'ar' ? 'ar' : 'en')
 
   function setLang(locale: AppLocale): void {
     lang.value = locale

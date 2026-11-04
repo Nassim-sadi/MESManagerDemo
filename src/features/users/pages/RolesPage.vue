@@ -8,6 +8,7 @@ import InputText from 'primevue/inputtext'
 import Checkbox from 'primevue/checkbox'
 import Tag from 'primevue/tag'
 import PageHeader from '@/components/shared/PageHeader.vue'
+import { useAppConfirm } from '@/composables/useAppConfirm'
 import { PERMISSION_GROUPS, PERMISSIONS } from '@/types/permissions'
 import { listRoles, listUsers, saveRoles } from '../services/users.service'
 import type { ManagedRole, ManagedUser } from '../types'
@@ -19,6 +20,7 @@ const visible = ref(false)
 const error = ref('')
 const editingId = ref<string | null>(null)
 const form = reactive<{ name: string; permissions: string[] }>({ name: '', permissions: [] })
+const { ask } = useAppConfirm()
 
 onMounted(async () => {
   try {
@@ -80,7 +82,8 @@ async function remove(role: ManagedRole): Promise<void> {
     error.value = `Reassign the ${assigned} user(s) on this role before deleting it.`
     return
   }
-  if (!window.confirm(`Delete role ${role.name}?`)) return
+  const accepted = await ask({ header: 'Delete role?', message: `Delete ${role.name}? This cannot be undone.`, acceptLabel: 'Delete', tone: 'danger' })
+  if (!accepted) return
   error.value = ''
   roles.value = roles.value.filter((entry) => entry.id !== role.id)
   await saveRoles(roles.value)
@@ -101,7 +104,7 @@ function permissionCount(role: ManagedRole): number {
   <DataTable :value="roles" :loading="loading" data-key="id" paginator :rows="10" :rows-per-page-options="[10, 20, 50]" striped-rows>
     <Column field="name" header="Role" sortable />
     <Column header="Users">
-      <template #body="{ data }">{{ users.filter((user) => user.roleId === data.id).length }}</template>
+      <template #body="{ data }">{{users.filter((user) => user.roleId === data.id).length}}</template>
     </Column>
     <Column header="Permissions">
       <template #body="{ data }">{{ permissionCount(data) }}</template>
@@ -123,7 +126,9 @@ function permissionCount(role: ManagedRole): number {
 
   <Dialog v-model:visible="visible" :header="editingId ? 'Edit role' : 'Add role'" modal :style="{ width: 'min(42rem, 95vw)' }">
     <form class="role-form" @submit.prevent="save">
-      <label class="role-name">Role name<InputText v-model="form.name" required fluid /></label>
+      <label class="role-name">Role name
+        <InputText v-model="form.name" required fluid />
+      </label>
       <h2>Menu and action permissions</h2>
       <p class="hint">Access is grouped by module. Administrators always retain role and permission management access.</p>
       <div class="permission-groups">
@@ -141,16 +146,82 @@ function permissionCount(role: ManagedRole): number {
 </template>
 
 <style scoped>
-.role-form { display: flex; flex-direction: column; gap: 0.65rem; padding-top: 0.5rem; }
-.role-name { display: flex; flex-direction: column; gap: 0.3rem; font-size: var(--mes-fs-sm); color: var(--mes-text-muted); }
-.role-form h2 { margin: 0.4rem 0 0; font-size: var(--mes-fs-lg); }
-.hint { margin: -0.4rem 0 0; font-size: var(--mes-fs-sm); color: var(--mes-text-muted); }
-.permission-groups { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.6rem; max-height: 50vh; overflow: auto; padding: 0.25rem; }
-.permission-group { display: flex; flex-direction: column; gap: 0.5rem; padding: 0.7rem; border: 1px solid var(--mes-border); border-radius: var(--mes-radius); }
-.permission-group h3 { margin: 0; font-size: var(--mes-fs-md); color: var(--mes-text-strong); }
-.permission-option { display: flex; align-items: flex-start; gap: 0.45rem; font-size: var(--mes-fs-sm); }
-.permission-option span { display: flex; flex-direction: column; gap: 0.15rem; }
-.form-actions { display: flex; justify-content: flex-end; gap: 0.5rem; }
-.error-message { color: var(--mes-danger, #b42318); }
-@media (max-width: 620px) { .permission-groups { grid-template-columns: 1fr; } }
+.role-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  padding-top: 0.5rem;
+}
+
+.role-name {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: var(--mes-fs-sm);
+  color: var(--mes-text-muted);
+}
+
+.role-form h2 {
+  margin: 0.4rem 0 0;
+  font-size: var(--mes-fs-lg);
+}
+
+.hint {
+  margin: -0.4rem 0 0;
+  font-size: var(--mes-fs-sm);
+  color: var(--mes-text-muted);
+}
+
+.permission-groups {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.6rem;
+  max-height: 50vh;
+  overflow: auto;
+  padding: 0.25rem;
+}
+
+.permission-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.7rem;
+  border: 1px solid var(--mes-border);
+  border-radius: var(--mes-radius);
+}
+
+.permission-group h3 {
+  margin: 0;
+  font-size: var(--mes-fs-md);
+  color: var(--mes-text-strong);
+}
+
+.permission-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.45rem;
+  font-size: var(--mes-fs-sm);
+}
+
+.permission-option span {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.error-message {
+  color: var(--mes-danger, #b42318);
+}
+
+@media (max-width: 620px) {
+  .permission-groups {
+    grid-template-columns: 1fr;
+  }
+}
 </style>

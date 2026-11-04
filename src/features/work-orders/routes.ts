@@ -3,34 +3,51 @@ import { PERMISSIONS } from '@/types/permissions'
 
 const routes: FeatureRoutes = [
   {
-    // routing container: the menu entry lives on the list route below
     path: 'work-orders',
-    name: 'work-orders',
+    name: 'order-management',
     meta: {
-      title: 'Work orders', titleKey: 'workOrders',
-      showInMenu: false,
+      title: 'Order Management', titleKey: 'orderManagement',
+      icon: 'pi pi-list-check',
+      order: 30,
+      showInMenu: true,
     },
     children: [
       {
         path: '',
         name: 'work-orders-list',
-        component: () => import('./pages/WorkOrdersPage.vue'),
+        component: () => import('./pages/OrdersPage.vue'),
         meta: {
           title: 'Work Orders', titleKey: 'workOrders',
-          icon: 'pi pi-list-check',
-          order: 2,
+          icon: 'pi pi-list',
+          order: 1,
           showInMenu: true,
-          group: 'production',
           permissions: [PERMISSIONS.workOrdersView],
         },
       },
       {
-        path: ':id',
-        name: 'work-order-detail',
-        component: () => import('./pages/WorkOrderDetailPage.vue'),
+        path: 'production-report',
+        name: 'order-production-report',
+        component: () => import('./pages/ProductionReportPage.vue'),
         meta: {
-          title: 'Work order detail', titleKey: 'workOrderDetail',
-          showInMenu: false,
+          title: 'Production Report',
+          titleKey: 'orderProductionReport',
+          icon: 'pi pi-chart-bar',
+          order: 2,
+          showInMenu: true,
+          permissions: [PERMISSIONS.productionReportView],
+        },
+      },
+      {
+        path: 'hourly-output',
+        name: 'hourly-output',
+        component: () => import('./pages/HourlyOutputPage.vue'),
+        meta: {
+          title: 'Hourly output',
+          titleKey: 'hourlyOutput',
+          icon: 'pi pi-chart-line',
+          order: 3,
+          showInMenu: true,
+          permissions: [PERMISSIONS.productionReportView],
         },
       },
     ],

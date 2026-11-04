@@ -30,7 +30,12 @@ export function installGuards(router: Router): void {
 
   router.afterEach((to) => {
     const meta = to.meta as { title: string; titleKey?: string }
-    const label = meta.titleKey ? i18n.global.t(meta.titleKey) : (meta.title ?? '')
+    const key = meta.titleKey
+      ? meta.titleKey.includes('.')
+        ? meta.titleKey
+        : `nav.${meta.titleKey}`
+      : ''
+    const label = key && i18n.global.te(key) ? i18n.global.t(key) : (meta.title ?? '')
     document.title = label ? `${label} · MES Manager` : 'MES Manager'
   })
 }

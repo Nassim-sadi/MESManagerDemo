@@ -1,14 +1,12 @@
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
-import { ALL_PERMISSIONS, migratePermissions, PERMISSIONS } from '@/types/permissions'
-
-export type UserRole = string
+import { migratePermissions, PERMISSIONS } from '@/types/permissions'
 
 export interface AuthUser {
   id: string
   userCode: string
   name: string
-  role: UserRole
+  role: string
   roleName: string
   permissions: string[]
   plant: string
@@ -16,32 +14,8 @@ export interface AuthUser {
   shift: string
   warehouseCodes: string[]
   avatarUrl: string
-}
-
-export const ROLE_PERMISSIONS: Record<UserRole, string[]> = {
-  operator: [
-    PERMISSIONS.dashboardView,
-    PERMISSIONS.productionView,
-    PERMISSIONS.workOrdersView,
-    PERMISSIONS.traceabilityView,
-  ],
-  supervisor: [
-    PERMISSIONS.dashboardView,
-    PERMISSIONS.alarmsAcknowledge,
-    PERMISSIONS.productionView,
-    PERMISSIONS.workOrdersView,
-    PERMISSIONS.workOrdersCreate,
-    PERMISSIONS.workOrdersStatus,
-    PERMISSIONS.traceabilityView,
-    PERMISSIONS.qualityView,
-    PERMISSIONS.inventoryView,
-    PERMISSIONS.reportsView,
-    PERMISSIONS.reportsRun,
-    PERMISSIONS.lineAssignmentsView,
-    PERMISSIONS.lineAssignmentsExport,
-    PERMISSIONS.lineAssignmentsPrint,
-  ],
-  admin: [...ALL_PERMISSIONS],
+  passwordHash: string
+  mustChangePassword: boolean
 }
 
 const TOKEN_KEY = 'mes.token'
@@ -57,7 +31,14 @@ export const useAuthStore = defineStore('auth', () => {
     if (!current) return []
     const currentPermissions = migratePermissions(current.permissions)
     if (current.role === 'admin') {
-      return [...new Set([...currentPermissions, PERMISSIONS.usersManage, PERMISSIONS.rolesManage])]
+      return [
+        ...new Set([
+          ...currentPermissions,
+          PERMISSIONS.usersManage,
+          PERMISSIONS.rolesManage,
+          PERMISSIONS.translationsManage,
+        ]),
+      ]
     }
     return currentPermissions
   })
@@ -74,11 +55,14 @@ export const useAuthStore = defineStore('auth', () => {
         role: stored.role ?? 'operator',
         roleName: stored.roleName ?? stored.role ?? 'Operator',
         permissions: stored.permissions ?? [],
-        plant: stored.plant ?? 'Plant 04 - Bratislava',
+        plant: stored.plant ?? 'Central-warehouse',
         factoryCode: stored.factoryCode ?? 'F04',
         shift: stored.shift ?? 'Shift A',
-        warehouseCodes: stored.warehouseCodes ?? (stored.role === 'admin' ? ['WH-01', 'WH-02', 'WH-03'] : []),
+        warehouseCodes:
+          stored.warehouseCodes ?? (stored.role === 'admin' ? ['WH-01', 'WH-02', 'WH-03'] : []),
         avatarUrl: stored.avatarUrl ?? '',
+        passwordHash: stored.passwordHash ?? '',
+        mustChangePassword: stored.mustChangePassword ?? false,
       }
     } catch {
       return null
@@ -90,6 +74,13 @@ export const useAuthStore = defineStore('auth', () => {
     user.value = nextUser
     localStorage.setItem(TOKEN_KEY, nextToken)
     localStorage.setItem(USER_KEY, JSON.stringify(nextUser))
+  }
+
+  function updatePasswordHash(passwordHash: string): void {
+    if (!user.value) return
+    user.value.passwordHash = passwordHash
+    user.value.mustChangePassword = false
+    localStorage.setItem(USER_KEY, JSON.stringify(user.value))
   }
 
   function logout(): void {
@@ -114,6 +105,7 @@ export const useAuthStore = defineStore('auth', () => {
     isAuthenticated,
     permissions,
     setSession,
+    updatePasswordHash,
     logout,
     hasEveryPermission,
     hasPermission,

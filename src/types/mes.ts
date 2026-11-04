@@ -3,7 +3,6 @@
 export type WorkOrderStatus = 'Queued' | 'Running' | 'Paused' | 'Hold' | 'Completed' | 'Cancelled'
 export type WorkOrderPriority = 'Low' | 'Normal' | 'High' | 'Urgent'
 export type LineStatus = 'Running' | 'Setup' | 'Idle' | 'Down' | 'Maintenance'
-export type AlarmSeverity = 'Critical' | 'Warning' | 'Info'
 export type SerialStatus = 'In Process' | 'Passed' | 'Failed' | 'Scrapped'
 export type StepResult = 'Pass' | 'Fail' | 'Rework' | 'Pending'
 
@@ -37,16 +36,6 @@ export interface ProductionLine {
   quality: number
   utilization: number
   cycleTimeSec: number
-}
-
-export interface Alarm {
-  id: string
-  raisedAt: string
-  line: string
-  code: string
-  message: string
-  severity: AlarmSeverity
-  acknowledged: boolean
 }
 
 export interface SerialUnit {
@@ -118,14 +107,4 @@ export interface Inspection {
   inspector: string
   measured: string
   inspectedAt: string
-}
-
-export interface ReportDefinition {
-  id: string
-  name: string
-  category: string
-  description: string
-  format: 'XLSX' | 'CSV' | 'PDF'
-  owner: string
-  lastRunAt: string
 }

@@ -20,6 +20,8 @@ export interface LoginResult {
     shift: string
     warehouseCodes: string[]
     avatarUrl: string
+    passwordHash: string
+    mustChangePassword: boolean
   }
 }
 

@@ -226,14 +226,22 @@ const IndustrialPreset = definePreset(Aura, {
       columnTitle: {
         fontWeight: '600',
       },
-      row: {
-        hoverBackground: '{surface.50}',
-      },
     },
     paginator: {
       root: {
         padding: '0.35rem 0.75rem',
-        background: '{surface.50}',
+      },
+      colorScheme: {
+        light: {
+          root: {
+            background: '{surface.50}',
+          },
+        },
+        dark: {
+          root: {
+            background: '{surface.800}',
+          },
+        },
       },
     },
     dialog: {

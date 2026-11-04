@@ -11,7 +11,7 @@ import Select from 'primevue/select'
 import ProgressBar from 'primevue/progressbar'
 import Tag from 'primevue/tag'
 import { useToast } from 'primevue/usetoast'
-import { useConfirm } from 'primevue/useconfirm'
+import { useAppConfirm } from '@/composables/useAppConfirm'
 import PageHeader from '@/components/shared/PageHeader.vue'
 import StatusTag from '@/components/shared/StatusTag.vue'
 import EmptyState from '@/components/shared/EmptyState.vue'
@@ -31,7 +31,7 @@ import { PERMISSIONS } from '@/types/permissions'
 
 const router = useRouter()
 const toast = useToast()
-const confirm = useConfirm()
+const { ask } = useAppConfirm()
 const auth = useAuthStore()
 
 const canCreate = auth.hasPermission(PERMISSIONS.workOrdersCreate) || auth.hasPermission(PERMISSIONS.workOrdersEdit)
@@ -100,24 +100,18 @@ function openDetail(order: WorkOrder): void {
   router.push({ name: 'work-order-detail', params: { id: order.id } })
 }
 
-function changeStatus(order: WorkOrder, status: WorkOrder['status']): void {
-  confirm.require({
+async function changeStatus(order: WorkOrder, status: WorkOrder['status']): Promise<void> {
+  const accepted = await ask({
     header: 'Change status',
     message: `Set ${order.id} to ${status}?`,
-    icon: 'pi pi-question-circle',
     acceptLabel: 'Apply',
     rejectLabel: 'Cancel',
-    accept: async () => {
-      await setWorkOrderStatus(order.id, status)
-      await refresh()
-      toast.add({
-        severity: 'success',
-        summary: 'Status updated',
-        detail: `${order.id} → ${status}`,
-        life: 2500,
-      })
-    },
+    tone: 'warn',
   })
+  if (!accepted) return
+  await setWorkOrderStatus(order.id, status)
+  await refresh()
+  toast.add({ severity: 'success', summary: 'Status updated', detail: `${order.id} → ${status}`, life: 2500 })
 }
 </script>
 

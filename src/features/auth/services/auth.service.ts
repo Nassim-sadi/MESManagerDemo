@@ -1,9 +1,9 @@
 import { delay } from '@/services/mock/support'
 import { PERMISSIONS } from '@/types/permissions'
-import { listRoles, listUsers } from '@/features/users/services/users.service'
+import { listRoles, listUsers, validatePassword } from '@/features/users/services/users.service'
 import type { LoginPayload, LoginResult } from '../types'
 
-/** Demo authentication: any non-empty password is accepted for an enabled managed user. */
+/** Demo authentication: seeded password hash is verified; empty hash falls back to any non-empty password. */
 export async function login(payload: LoginPayload): Promise<LoginResult> {
   await delay(280, 650)
   const loginCode = payload.username.trim().toLowerCase()
@@ -24,6 +24,14 @@ export async function login(payload: LoginPayload): Promise<LoginResult> {
   if (!managedUser.active || managedUser.employmentStatus !== 'Employed') {
     throw new Error('This user account is disabled.')
   }
+  if (managedUser.mustChangePassword && !payload.password) {
+    throw new Error('A temporary password is required. Please set a new password.')
+  }
+  const passwordOk = managedUser.passwordHash
+    ? await validatePassword(managedUser.userCode, payload.password, managedUser.id)
+    : Boolean(payload.password.trim())
+  if (!passwordOk) throw new Error('Password is incorrect.')
+
   const role = roles.find((candidate) => candidate.id === managedUser.roleId)
   if (!role) throw new Error('The assigned role is no longer available.')
 
@@ -42,6 +50,8 @@ export async function login(payload: LoginPayload): Promise<LoginResult> {
     shift: managedUser.shift,
     warehouseCodes: managedUser.warehouseCodes,
     avatarUrl: managedUser.avatarUrl,
+    passwordHash: managedUser.passwordHash,
+    mustChangePassword: managedUser.mustChangePassword,
   }
   const token = `demo.${btoa(JSON.stringify({ sub: user.id, role: user.role, factory: user.factoryCode }))}`
   return { token, user }

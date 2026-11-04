@@ -11,6 +11,8 @@ import ToggleSwitch from 'primevue/toggleswitch'
 import Tag from 'primevue/tag'
 import Avatar from 'primevue/avatar'
 import PageHeader from '@/components/shared/PageHeader.vue'
+import ChangePasswordDialog from '@/features/auth/components/ChangePasswordDialog.vue'
+import { useAppConfirm } from '@/composables/useAppConfirm'
 import { useAuthStore } from '@/stores/auth.store'
 import { listDepartments, listRoles, listUsers, saveUsers } from '../services/users.service'
 import {
@@ -23,15 +25,16 @@ import {
   type ManagedRole,
   type ManagedUser,
 } from '../types'
-
 const users = ref<ManagedUser[]>([])
 const auth = useAuthStore()
+const { ask } = useAppConfirm()
 const roles = ref<ManagedRole[]>([])
 const departments = ref<string[]>(DEPARTMENT_OPTIONS)
 const loading = ref(true)
 const visible = ref(false)
 const error = ref('')
 const editingId = ref<string | null>(null)
+const passwordTarget = ref<ManagedUser | null>(null)
 const form = reactive({
   userCode: '', username: '', name: '', department: DEPARTMENT_OPTIONS[0]!, sex: 'Unspecified',
   address: '', telephone: '', mobile: '', fax: '', email: '', post: '', active: true,
@@ -120,6 +123,8 @@ async function save(): Promise<void> {
     name,
     factoryName: factory.name,
     warehouseCodes: [...form.warehouseCodes],
+    passwordHash: users.value.find((user) => user.id === editingId.value)?.passwordHash ?? '',
+    mustChangePassword: users.value.find((user) => user.id === editingId.value)?.mustChangePassword ?? false,
   }
   const updatedUsers = editingId.value
     ? users.value.map((user) => user.id === editingId.value ? next : user)
@@ -139,9 +144,22 @@ async function remove(user: ManagedUser): Promise<void> {
     error.value = 'The last active Administrator account cannot be deleted.'
     return
   }
-  if (!window.confirm(`Delete user ${user.name}?`)) return
+  const accepted = await ask({ header: 'Delete user?', message: `Delete ${user.name}? This cannot be undone.`, acceptLabel: 'Delete', tone: 'danger' })
+  if (!accepted) return
   users.value = users.value.filter((entry) => entry.id !== user.id)
   await saveUsers(users.value)
+}
+
+function openSetPassword(user: ManagedUser): void {
+  passwordTarget.value = user
+}
+
+function onPasswordDialogVisibility(visible: boolean): void {
+  if (!visible) passwordTarget.value = null
+}
+
+function onPasswordChanged(updatedUser: ManagedUser): void {
+  users.value = users.value.map((user) => user.id === updatedUser.id ? updatedUser : user)
 }
 </script>
 
@@ -152,37 +170,65 @@ async function remove(user: ManagedUser): Promise<void> {
   <p v-if="error" class="error-message" role="alert">{{ error }}</p>
   <DataTable :value="visibleUsers" :loading="loading" data-key="id" paginator :rows="10" :rows-per-page-options="[10, 20, 50]" striped-rows>
     <Column header="User" sort-field="name" sortable>
-      <template #body="{ data }"><div class="user-cell"><Avatar :image="data.avatarUrl || undefined" :label="initials(data.name)" shape="circle" /><span>{{ data.name }}<small>{{ data.userCode }}</small></span></div></template>
+      <template #body="{ data }">
+        <div class="user-cell">
+          <Avatar :image="data.avatarUrl || undefined" :label="initials(data.name)" shape="circle" /><span>{{ data.name }}<small>{{ data.userCode }}</small></span>
+        </div>
+      </template>
     </Column>
     <Column field="department" header="Department" sortable />
     <Column field="factoryName" header="Factory" sortable />
-    <Column header="Role" sortable sort-field="roleId"><template #body="{ data }">{{ roles.find((role) => role.id === data.roleId)?.name ?? data.roleId }}</template></Column>
+    <Column header="Role" sortable sort-field="roleId"><template #body="{ data }">{{roles.find((role) => role.id === data.roleId)?.name ?? data.roleId}}</template></Column>
     <Column header="Warehouses"><template #body="{ data }">{{ data.warehouseCodes.length }}</template></Column>
-    <Column field="active" header="Status" sortable><template #body="{ data }"><Tag :value="data.active ? 'Active' : 'Inactive'" :severity="data.active ? 'success' : 'secondary'" /></template></Column>
-    <Column header="Actions" style="width: 9rem"><template #body="{ data }"><Button icon="pi pi-pencil" text rounded aria-label="Edit user" @click="openEdit(data)" /><Button icon="pi pi-trash" text rounded severity="danger" aria-label="Delete user" @click="remove(data)" /></template></Column>
+    <Column field="active" header="Status" sortable><template #body="{ data }">
+        <Tag :value="data.active ? 'Active' : 'Inactive'" :severity="data.active ? 'success' : 'secondary'" />
+      </template></Column>
+    <Column header="Actions" style="width: 10rem"><template #body="{ data }"><Button icon="pi pi-pencil" text rounded aria-label="Edit user" @click="openEdit(data)" /><Button icon="pi pi-key" text rounded :aria-label="`Set password for ${data.name}`" title="Set password" @click="openSetPassword(data)" /><Button icon="pi pi-trash" text rounded severity="danger" aria-label="Delete user" @click="remove(data)" /></template></Column>
     <template #empty>No users found.</template>
   </DataTable>
+
+  <ChangePasswordDialog v-if="passwordTarget" :visible="Boolean(passwordTarget)" mode="set-for-user" :target-user="passwordTarget" @update:visible="onPasswordDialogVisibility" @password-changed="onPasswordChanged" />
 
   <Dialog v-model:visible="visible" :header="editingId ? 'Edit user' : 'Add user'" modal :style="{ width: 'min(50rem, 95vw)' }">
     <form class="user-form" @submit.prevent="save">
       <section class="form-section">
         <h2>Identity</h2>
-        <label>User code<InputText v-model="form.userCode" required fluid autocomplete="off" /></label>
-        <label>Full name<InputText v-model="form.name" required fluid /></label>
-        <label>Profile image URL<InputText v-model="form.avatarUrl" placeholder="https://… or /images/user.png" fluid /></label>
-        <div v-if="form.avatarUrl" class="avatar-preview"><Avatar :image="form.avatarUrl" :label="initials(form.name)" shape="circle" size="large" />Photo preview</div>
+        <label>User code
+          <InputText v-model="form.userCode" required fluid autocomplete="off" />
+        </label>
+        <label>Full name
+          <InputText v-model="form.name" required fluid />
+        </label>
+        <label>Profile image URL
+          <InputText v-model="form.avatarUrl" placeholder="https://… or /images/user.png" fluid />
+        </label>
+        <div v-if="form.avatarUrl" class="avatar-preview">
+          <Avatar :image="form.avatarUrl" :label="initials(form.name)" shape="circle" size="large" />Photo preview
+        </div>
         <label>Department<Select v-model="form.department" :options="departments" fluid /></label>
         <label>Sex<Select v-model="form.sex" :options="SEX_OPTIONS" fluid /></label>
-        <label>Position<InputText v-model="form.post" fluid /></label>
+        <label>Position
+          <InputText v-model="form.post" fluid />
+        </label>
       </section>
 
       <section class="form-section">
         <h2>Contact</h2>
-        <label>Email<InputText v-model="form.email" type="email" fluid /></label>
-        <label>Telephone<InputText v-model="form.telephone" fluid /></label>
-        <label>Mobile<InputText v-model="form.mobile" fluid /></label>
-        <label>Fax<InputText v-model="form.fax" fluid /></label>
-        <label class="wide-field">Address<InputText v-model="form.address" fluid /></label>
+        <label>Email
+          <InputText v-model="form.email" type="email" fluid />
+        </label>
+        <label>Telephone
+          <InputText v-model="form.telephone" fluid />
+        </label>
+        <label>Mobile
+          <InputText v-model="form.mobile" fluid />
+        </label>
+        <label>Fax
+          <InputText v-model="form.fax" fluid />
+        </label>
+        <label class="wide-field">Address
+          <InputText v-model="form.address" fluid />
+        </label>
       </section>
 
       <section class="form-section">
@@ -191,10 +237,18 @@ async function remove(user: ManagedUser): Promise<void> {
         <label>Role<Select v-model="form.roleId" :options="roleOptions" option-label="label" option-value="value" fluid /></label>
         <label>Shift<Select v-model="form.shift" :options="SHIFT_OPTIONS" fluid /></label>
         <label>Employment status<Select v-model="form.employmentStatus" :options="EMPLOYMENT_OPTIONS" fluid /></label>
-        <label class="wide-field">Allowed warehouses<MultiSelect v-model="form.warehouseCodes" :options="warehouseOptions" option-label="label" option-value="value" display="chip" fluid /></label>
-        <label class="switch-field">Account enabled<ToggleSwitch v-model="form.active" /></label>
-        <label class="switch-field">Foreground authority<ToggleSwitch v-model="form.foregroundAuthority" /></label>
-        <label class="switch-field">Background authority<ToggleSwitch v-model="form.backgroundAuthority" /></label>
+        <label class="wide-field">Allowed warehouses
+          <MultiSelect v-model="form.warehouseCodes" :options="warehouseOptions" option-label="label" option-value="value" display="chip" fluid />
+        </label>
+        <label class="switch-field">Account enabled
+          <ToggleSwitch v-model="form.active" />
+        </label>
+        <label class="switch-field">Foreground authority
+          <ToggleSwitch v-model="form.foregroundAuthority" />
+        </label>
+        <label class="switch-field">Background authority
+          <ToggleSwitch v-model="form.backgroundAuthority" />
+        </label>
       </section>
 
       <div class="form-actions"><Button label="Cancel" severity="secondary" text type="button" @click="visible = false" /><Button label="Save user" type="submit" /></div>
@@ -203,17 +257,92 @@ async function remove(user: ManagedUser): Promise<void> {
 </template>
 
 <style scoped>
-.user-form { display: flex; flex-direction: column; gap: 1rem; max-height: 72vh; overflow: auto; padding: 0.25rem; }
-.form-section { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.75rem; padding: 0.75rem; border: 1px solid var(--mes-border); border-radius: var(--mes-radius); }
-.form-section h2 { grid-column: 1 / -1; margin: 0; font-size: var(--mes-fs-lg); color: var(--mes-text-strong); }
-.form-section label { display: flex; flex-direction: column; gap: 0.3rem; font-size: var(--mes-fs-sm); color: var(--mes-text-muted); }
-.form-section .wide-field { grid-column: 1 / -1; }
-.form-section .switch-field { flex-direction: row; align-items: center; justify-content: space-between; min-height: 2.3rem; }
-.form-actions { display: flex; justify-content: flex-end; gap: 0.5rem; }
-.user-cell { display: flex; align-items: center; gap: 0.55rem; }
-.user-cell span { display: flex; flex-direction: column; }
-.user-cell small { color: var(--mes-text-muted); font-size: 0.7rem; }
-.avatar-preview { display: flex; align-items: center; gap: 0.5rem; font-size: var(--mes-fs-sm); color: var(--mes-text-muted); }
-.error-message { color: var(--mes-danger, #b42318); }
-@media (max-width: 620px) { .form-section { grid-template-columns: 1fr; } .form-section h2, .form-section .wide-field { grid-column: auto; } }
+.user-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-height: 72vh;
+  overflow: auto;
+  padding: 0.25rem;
+}
+
+.form-section {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border: 1px solid var(--mes-border);
+  border-radius: var(--mes-radius);
+}
+
+.form-section h2 {
+  grid-column: 1 / -1;
+  margin: 0;
+  font-size: var(--mes-fs-lg);
+  color: var(--mes-text-strong);
+}
+
+.form-section label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: var(--mes-fs-sm);
+  color: var(--mes-text-muted);
+}
+
+.form-section .wide-field {
+  grid-column: 1 / -1;
+}
+
+.form-section .switch-field {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 2.3rem;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.user-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.user-cell span {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-cell small {
+  color: var(--mes-text-muted);
+  font-size: 0.7rem;
+}
+
+.avatar-preview {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: var(--mes-fs-sm);
+  color: var(--mes-text-muted);
+}
+
+.error-message {
+  color: var(--mes-danger, #b42318);
+}
+
+@media (max-width: 620px) {
+  .form-section {
+    grid-template-columns: 1fr;
+  }
+
+  .form-section h2,
+  .form-section .wide-field {
+    grid-column: auto;
+  }
+}
 </style>

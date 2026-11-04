@@ -11,14 +11,22 @@ const props = withDefaults(
 )
 
 const route = useRoute()
-const { t } = useI18n()
+const { t, te } = useI18n()
+
+function labelFor(meta: Record<string, unknown>): string {
+  const titleKey = typeof meta.titleKey === 'string' ? meta.titleKey : ''
+  const title = typeof meta.title === 'string' ? meta.title : ''
+  if (!titleKey) return title
+  const key = titleKey.includes('.') ? titleKey : `nav.${titleKey}`
+  return te(key) ? t(key) : title
+}
 
 const crumbs = computed(() => {
   const entries = route.matched
     .filter((record) => record.meta.title && record.path !== '/')
     .map((record) => ({
       key: record.meta.titleKey ?? record.meta.title,
-      label: t((record.meta.titleKey as string) ?? record.meta.title),
+      label: labelFor(record.meta),
       to: record.path,
     }))
 

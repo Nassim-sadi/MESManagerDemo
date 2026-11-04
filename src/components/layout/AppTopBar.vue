@@ -6,12 +6,10 @@ import Menu from 'primevue/menu'
 import type { MenuItem } from 'primevue/menuitem'
 import Select from 'primevue/select'
 import Button from 'primevue/button'
-import Badge from 'primevue/badge'
 import AppBreadcrumb from './AppBreadcrumb.vue'
 import AppLogo from '@/components/brand/AppLogo.vue'
 import UserMenu from './UserMenu.vue'
 import { useAppStore } from '@/stores/app.store'
-import { useAlarmsStore } from '@/stores/alarms.store'
 import { useNavigation } from '@/composables/useNavigation'
 import { intlLocale, type AppLocale } from '@/plugins/i18n'
 import type { NavItem } from '@/router/navigation'
@@ -22,7 +20,6 @@ const router = useRouter()
 const route = useRoute()
 const app = useAppStore()
 const auth = useAuthStore()
-const alarmStore = useAlarmsStore()
 const { t } = useI18n()
 const { items } = useNavigation()
 
@@ -98,7 +95,6 @@ onMounted(() => {
   timer = window.setInterval(() => {
     now.value = new Date()
   }, 1000)
-  void alarmStore.refresh()
 })
 
 onUnmounted(() => {
@@ -130,7 +126,7 @@ function openGroup(event: Event, item: NavItem): void {
 }
 
 function isMenuItemActive(item: NavItem): boolean {
-  return route.path === item.to || route.path.startsWith(`${item.to}/`)
+  return route.path === item.to
 }
 </script>
 
@@ -198,22 +194,6 @@ function isMenuItemActive(item: NavItem): boolean {
           @click="handleThemeToggle($event)"
         />
 
-        <Button
-          text
-          severity="secondary"
-          size="small"
-          :aria-label="t('topbar.openAlarms')"
-          class="topbar__bell-button"
-          @click="router.push({ name: 'dashboard' })"
-        >
-          <template #icon>
-            <span class="topbar__bell">
-              <i class="pi pi-bell" />
-              <Badge v-if="alarmStore.openCount" :value="alarmStore.openCount" severity="danger" />
-            </span>
-          </template>
-        </Button>
-
         <UserMenu :language-options="langOptions" />
       </div>
     </div>
@@ -259,7 +239,7 @@ function isMenuItemActive(item: NavItem): boolean {
           </RouterLink>
 
           <template v-else>
-            <span class="topbar__drawer-group">
+            <span class="topbar__drawer-group" :class="{ 'topbar__drawer-group--active': isActive(item) }">
               <i v-if="item.icon" :class="item.icon" />
               <span>{{ item.label }}</span>
             </span>
@@ -453,31 +433,9 @@ function isMenuItemActive(item: NavItem): boolean {
 /* Dark-nav icon buttons stay quiet: exempt them from the global
    secondary-chip style (see primevue-overrides.css). */
 .topbar .topbar__burger.p-button:not(:disabled),
-.topbar .topbar__theme-button.p-button:not(:disabled),
-.topbar .topbar__bell-button.p-button:not(:disabled) {
+.topbar .topbar__theme-button.p-button:not(:disabled) {
   background: transparent;
   border-color: transparent;
-}
-
-.topbar__bell-button.p-button:not(:disabled):hover {
-  background: rgba(255 255 255 / 10%);
-  color: #f2f6fa;
-}
-
-.topbar__bell {
-  position: relative;
-  display: inline-grid;
-  place-items: center;
-}
-
-.topbar__bell :deep(.p-badge) {
-  position: absolute;
-  top: -0.4rem;
-  right: -0.55rem;
-  font-size: 0.5625rem;
-  min-width: 14px;
-  height: 14px;
-  line-height: 14px;
 }
 
 /* --- Level 2 ----------------------------------------------------------- */
@@ -593,6 +551,12 @@ function isMenuItemActive(item: NavItem): boolean {
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--mes-nav-text-muted);
+}
+
+.topbar__drawer-group--active {
+  border-radius: var(--mes-radius-sm);
+  background: var(--mes-accent);
+  color: #fff;
 }
 
 .topbar__drawer-group i {

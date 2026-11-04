@@ -77,6 +77,8 @@ function migrateUser(value: Partial<ManagedUser> & Record<string, unknown>): Man
     warehouseCodes: Array.isArray(value.warehouseCodes)
       ? value.warehouseCodes.map(String)
       : defaultWarehouses,
+    passwordHash: value.passwordHash ?? '',
+    mustChangePassword: value.mustChangePassword ?? false,
   }
 }
 
@@ -92,6 +94,10 @@ export async function listUsers(): Promise<ManagedUser[]> {
   ).map(migrateUser)
   write(USERS_KEY, initial)
   return initial
+}
+
+export async function listDepartments(): Promise<string[]> {
+  return [...DEPARTMENT_OPTIONS]
 }
 
 export async function saveUsers(users: ManagedUser[]): Promise<void> {
@@ -117,6 +123,37 @@ export async function saveRoles(roles: ManagedRole[]): Promise<void> {
   write(ROLES_KEY, roles)
 }
 
-export async function listDepartments(): Promise<string[]> {
-  return seed<string[]>('departments.json')
+export async function validatePassword(userCode: string, password: string, userId?: string): Promise<boolean> {
+  const users = await listUsers()
+  const user = users.find((candidate) => userId ? candidate.id === userId : candidate.userCode === userCode)
+  if (!user) return false
+  // If user has a password hash, verify it; otherwise demo accepts any non-empty password
+  if (user.passwordHash) {
+    const encoder = new TextEncoder()
+    const data = encoder.encode(password)
+    const hash = await crypto.subtle.digest('SHA-256', data)
+    const hexHash = Array.from(new Uint8Array(hash))
+      .map((b) => b.toString(16).padStart(2, '0'))
+      .join('')
+    return hexHash === user.passwordHash
+  }
+  return Boolean(password.trim())
+}
+
+export async function setUserPassword(userId: string, password: string): Promise<ManagedUser> {
+  const users = await listUsers()
+  const idx = users.findIndex((u) => u.id === userId)
+  if (idx < 0) throw new Error('User not found')
+  const encoder = new TextEncoder()
+  const data = encoder.encode(password)
+  const hash = await crypto.subtle.digest('SHA-256', data)
+  const hexHash = Array.from(new Uint8Array(hash))
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('')
+  const user = users[idx]
+  if (!user) throw new Error('User not found')
+  user.passwordHash = hexHash
+  user.mustChangePassword = false
+  await saveUsers(users)
+  return user
 }

@@ -24,9 +24,13 @@ export function useNavigation() {
 
     return tree.flatMap((item) => {
       const children = item.children.filter(isAllowed)
-      return isAllowed(item) || children.length
-        ? [{ ...item, children }]
-        : []
+
+      // A group is only useful when at least one child survived the filter.
+      if (item.children.length) {
+        return children.length ? [{ ...item, children }] : []
+      }
+
+      return isAllowed(item) ? [item] : []
     })
   })
 

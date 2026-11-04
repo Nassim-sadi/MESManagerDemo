@@ -1,5 +1,36 @@
 [
-  { "id": "operator", "name": "Operator", "permissions": ["dashboard:view", "production:view", "work-orders:view", "traceability:view"] },
-  { "id": "supervisor", "name": "Supervisor", "permissions": ["dashboard:view", "alarms:acknowledge", "production:view", "work-orders:view", "work-orders:create", "work-orders:change-status", "traceability:view", "quality:view", "inventory:view", "reports:view", "reports:run", "line-assignments:view", "line-assignments:export", "line-assignments:print"] },
-  { "id": "admin", "name": "Administrator", "permissions": ["dashboard:view", "alarms:acknowledge", "production:view", "work-orders:view", "work-orders:create", "work-orders:change-status", "work-orders:delete", "traceability:view", "quality:view", "inventory:view", "reports:view", "reports:run", "line-assignments:view", "line-assignments:manage", "line-assignments:export", "line-assignments:print", "settings:view", "settings:edit", "users:manage", "roles:manage"] }
+  {
+    "id": "operator",
+    "name": "Operator",
+    "permissions": [
+      "system-menu:view",
+      "work-orders:view"
+    ]
+  },
+  {
+    "id": "supervisor",
+    "name": "Supervisor",
+    "permissions": [
+      "system-menu:view",
+      "work-orders:view",
+      "work-orders:create",
+      "work-orders:change-status",
+      "order-management:production-report:view"
+    ]
+  },
+  {
+    "id": "admin",
+    "name": "Administrator",
+    "permissions": [
+      "system-menu:view",
+      "work-orders:view",
+      "work-orders:create",
+      "work-orders:change-status",
+      "work-orders:delete",
+      "order-management:production-report:view",
+      "users:manage",
+      "roles:manage",
+      "translations:manage"
+    ]
+  }
 ]
