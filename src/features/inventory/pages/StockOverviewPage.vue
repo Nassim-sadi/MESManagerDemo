@@ -41,7 +41,9 @@ function exportExcel(): void {
 <template>
   <div class="stock-page">
     <PageHeader title="Stock overview" subtitle="Warehouse quantities from Frm_StockListHz, scoped to assigned warehouses.">
-      <template #actions><Tag value="Sample data" severity="info" /><Button label="Export Excel" icon="pi pi-download" size="small" severity="secondary" outlined @click="exportExcel" /></template>
+      <template #actions>
+        <Tag value="Sample data" severity="info" /><Button label="Export Excel" icon="pi pi-download" size="small" severity="secondary" outlined @click="exportExcel" />
+      </template>
     </PageHeader>
     <section class="mes-card filters">
       <Select v-model="warehouse" :options="warehouseOptions" placeholder="All warehouses" show-clear aria-label="wareHouseCode" />
@@ -51,10 +53,34 @@ function exportExcel(): void {
       <InputText v-model="serial" placeholder="SN" aria-label="SN" />
       <Button label="Reset" severity="secondary" text size="small" @click="reset" />
     </section>
-    <section class="mes-card table-card"><DataTable :value="rows" size="small" paginator :rows="10" responsive-layout="scroll"><Column v-for="column in STOCK_COLUMNS" :key="column.field" :field="column.field" :header="column.header" /></DataTable></section>
+    <section class="mes-card table-card">
+      <DataTable :value="rows" size="small" paginator :rows="10" responsive-layout="scroll">
+        <Column v-for="column in STOCK_COLUMNS" :key="column.field" :field="column.field" :header="column.header" />
+      </DataTable>
+    </section>
   </div>
 </template>
 
 <style scoped>
-.stock-page { display: flex; flex-direction: column; gap: .8rem; }.filters { display: flex; flex-wrap: wrap; gap: .6rem; padding: .8rem 1rem; }.filters :deep(.p-inputtext), .filters :deep(.p-select) { min-width: 10rem; }.table-card { overflow: auto; }
+.stock-page {
+  display: flex;
+  flex-direction: column;
+  gap: .8rem;
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .6rem;
+  padding: .8rem 1rem;
+}
+
+.filters :deep(.p-inputtext),
+.filters :deep(.p-select) {
+  min-width: 10rem;
+}
+
+.table-card {
+  overflow: auto;
+}
 </style>

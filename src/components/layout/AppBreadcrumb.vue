@@ -28,13 +28,20 @@ const crumbs = computed(() => {
       key: record.meta.titleKey ?? record.meta.title,
       label: labelFor(record.meta),
       to: record.path,
+      name: record.name,
     }))
 
-  // A feature group and its list page often share the same title
-  // ("Work orders" > "Work Orders") - show the trail only once.
-  return entries.filter(
+  // Remove consecutive entries with the same title.
+  const filtered = entries.filter(
     (entry, index) =>
-      index === entries.length - 1 || entry.key !== entries[index + 1]!.key,
+      index === entries.length - 1 ||
+      entry.key !== entries[index + 1]!.key,
+  )
+
+  // Remove duplicate paths.
+  return filtered.filter(
+    (entry, index) =>
+      filtered.findIndex((item) => item.to === entry.to) === index,
   )
 })
 </script>
